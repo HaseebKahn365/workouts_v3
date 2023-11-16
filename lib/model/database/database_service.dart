@@ -20,6 +20,7 @@ class DatabaseService {
     return join(path, name);
   }
 
+  //create the initalize function
   Future<Database> _initalize() async {
     //get the path to the database
     final path = await fullPath;
