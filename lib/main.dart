@@ -61,6 +61,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workouts_v3/firebase_options.dart';
+import 'package:workouts_v3/widgets/create_workout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,6 +76,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Workouts',
       theme: ThemeData(
+        //use the dark theme
+        brightness: Brightness.dark,
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
@@ -98,15 +101,26 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(title: Text(widget.title)),
       body: SingleChildScrollView(
           child: Center(
-        child: Column(
-          //create a button that will be used to create a workout
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            //create a button that will be used to create a workout
 
-          children: [
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Create Workout'),
-            ),
-          ],
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  //push the create workout screen
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return CreateWorkout();
+                    },
+                  ));
+                },
+                child: Text('Create Workout'),
+              ),
+            ],
+          ),
         ),
       )),
     );
