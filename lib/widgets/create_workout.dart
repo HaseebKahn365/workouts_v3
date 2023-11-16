@@ -1,8 +1,9 @@
 //here is the page for creating a workout
 
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:workouts_v3/model/database/database_service.dart';
 
 class CreateWorkout extends StatefulWidget {
   const CreateWorkout({super.key});
@@ -14,6 +15,7 @@ class CreateWorkout extends StatefulWidget {
 class _CreateWorkoutState extends State<CreateWorkout> {
   String dropdownValue = 'custom';
   bool isScorePerCountEnabled = false;
+  TextEditingController workoutTitleController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +29,7 @@ class _CreateWorkoutState extends State<CreateWorkout> {
           children: [
             //create a text field for the workout title
             TextField(
+              controller: workoutTitleController,
               decoration: InputDecoration(
                 labelText: 'Workout Title',
               ),
@@ -70,7 +73,22 @@ class _CreateWorkoutState extends State<CreateWorkout> {
             ),
             //create a button that will be used to create a workout
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                //Here we will create a new workout based on the above specified details and navigate to the home screen. In the home screen, the initState method will be called and the workouts will be retrieved from the database and displayed in the list view.
+
+                //calling the createWorkout method from the database service class
+                //add some validation rules
+                if (workoutTitleController.text.isEmpty) {
+                  return;
+                }
+                await DatabaseService().createWorkout(
+                  workoutTitleController.text,
+                  dropdownValue,
+                );
+
+                //navigate to the home screen
+                Navigator.pop(context);
+              },
               child: Text('Create Workout'),
             ),
           ],

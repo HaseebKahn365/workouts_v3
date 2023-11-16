@@ -61,6 +61,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workouts_v3/firebase_options.dart';
+import 'package:workouts_v3/model/database/database_service.dart';
+import 'package:workouts_v3/model/wrokout.dart';
 import 'package:workouts_v3/widgets/create_workout.dart';
 
 void main() async {
@@ -95,34 +97,63 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<Workout> workouts = [];
+  @override
+  void initState() {
+    var db = DatabaseService();
+
+    super.initState();
+    db.fetchAll().then((result) {
+      setState(() {
+        workouts = result;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: SingleChildScrollView(
-          child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            //create a button that will be used to create a workout
-
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  //push the create workout screen
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return CreateWorkout();
-                    },
-                  ));
-                },
-                child: Text('Create Workout'),
-              ),
-            ],
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return CreateWorkout();
+                      },
+                    ));
+                  },
+                  child: Text('Create Workout'),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: workouts.length,
+                  itemBuilder: (context, index) {
+                    Workout? workout;
+                    if (workouts.isNotEmpty) {
+                      workout = workouts[index];
+                    }
+                    return ListTile(
+                      title: Text(workout?.workoutName ?? ''),
+                      subtitle: Text(workout?.workoutType ?? ''),
+                      trailing: Text(workout?.totalCountToday.toString() ?? ''),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-      )),
+      ),
     );
   }
 }

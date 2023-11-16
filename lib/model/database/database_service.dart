@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:workouts_v3/model/wrokout.dart';
 
 class DatabaseService {
   Database? _database;
@@ -119,5 +120,187 @@ scorePerCount
     scorePerCount INTEGER NOT NULL
   )
   ''');
+  }
+
+  Future<int> getWorkoutTypeUid(String workoutType) async {
+    // Implement the method...
+    try {
+      //get the database
+      final db = await database;
+
+      //get the workout type uid
+      final workoutTypeUid = await db.query(
+        'workoutTypes',
+        where: 'workoutType = ?',
+        whereArgs: [workoutType],
+      );
+
+      //return the workout type uid
+      return workoutTypeUid[0]['workoutTypeUid'] as int;
+    } catch (e) {
+      print('Error occurred while getting workout type uid: $e');
+      return 0;
+    }
+  }
+
+  //create a method to get the score per count uid, nth set uid
+  Future<int> getScorePerCountUid(int scorePerCount) async {
+    // Implement the method...
+    try {
+      //get the database
+      final db = await database;
+
+      //get the score per count uid
+      final scorePerCountUid = await db.query(
+        'scorePerCount',
+        where: 'scorePerCount = ?',
+        whereArgs: [scorePerCount],
+      );
+
+      //return the score per count uid
+      return scorePerCountUid[0]['scorePerCountUid'] as int;
+    } catch (e) {
+      print('Error occurred while getting score per count uid: $e');
+      return 0;
+    }
+  }
+
+  Future<int> getNthSetUid(int nthSet) async {
+    // Implement the method...
+    try {
+      //get the database
+      final db = await database;
+
+      //get the nth set uid
+      final nthSetUid = await db.query(
+        'nthSet',
+        where: 'nthSet = ?',
+        whereArgs: [nthSet],
+      );
+
+      //return the nth set uid
+      return nthSetUid[0]['nthSetUid'] as int;
+    } catch (e) {
+      print('Error occurred while getting nth set uid: $e');
+      return 0;
+    }
+  }
+
+  Future<void> createWorkout(String workoutTitle, String workoutType) async {
+    try {
+      //get the database
+      final db = await database;
+
+      //get the workout type uid
+      final workoutTypeUid = await getWorkoutTypeUid(workoutType);
+
+      //get the score per count uid
+      final scorePerCountUid = await getScorePerCountUid(0);
+
+      //get the current date and time
+      final dateAndTime = DateTime.now().toString();
+
+      //get the nth set uid
+      final nthSetUid = await getNthSetUid(0);
+
+      //insert the workout into the workout table
+      final workoutId = await db.insert(
+        'workouts',
+        {
+          'workoutTitle': workoutTitle,
+          'totalCount': 0,
+          'workoutTypeUid': workoutTypeUid,
+          'scorePerCountUid': scorePerCountUid,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      //insert the date and time into the date and time table
+      await db.insert(
+        'dateAndTime',
+        {
+          'dateAndTime': dateAndTime,
+          'workoutUid': workoutId,
+          'nthSetUid': nthSetUid,
+          'instanceCount': 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print('workout created successfully');
+    } catch (e) {
+      print('Error occurred while creating workout: $e');
+    }
+  }
+
+  //Fetching all the created workouts
+
+  Future<List<Workout>> fetchAll() async {
+    try {
+      //get the database
+      final db = await database;
+
+      //get the workouts
+      final workouts = await db.query('workouts');
+
+      //get the workout types
+      final workoutTypes = await db.query('workoutTypes');
+
+      //get the score per count
+      final scorePerCount = await db.query('scorePerCount');
+
+      //get the date and time
+      final dateAndTime = await db.query('dateAndTime');
+
+      //get the nth set
+      final nthSet = await db.query('nthSet');
+
+      //create a list of workouts
+      final List<Workout> workoutList = [];
+
+      //loop through the workouts
+      for (var workout in workouts) {
+        //get the workout type
+        final workoutType = workoutTypes.firstWhere(
+          (element) => element['workoutTypeUid'] == workout['workoutTypeUid'],
+        );
+
+        //get the score per count
+        final scorePerCountValue = scorePerCount.firstWhere(
+          (element) =>
+              element['scorePerCountUid'] == workout['scorePerCountUid'],
+        );
+
+        //get the date and time
+        final dateAndTimeValue = dateAndTime.firstWhere(
+          (element) => element['workoutUid'] == workout['workoutUid'],
+        );
+
+        //get the nth set
+        final nthSetValue = nthSet.firstWhere(
+          (element) => element['nthSetUid'] == dateAndTimeValue['nthSetUid'],
+        );
+
+        //create a workout object
+        final workoutObject = Workout(
+          workoutName: workout['workoutTitle'] as String,
+          totalCountToday: workout['totalCount'] as int,
+          dateAndTime:
+              DateTime.parse(dateAndTimeValue['dateAndTime'] as String),
+          workoutType: workoutType['workoutType'] as String,
+          scorePerCount: scorePerCountValue['scorePerCount'] as int,
+          nthTimeToday: nthSetValue['nthSet'] as int,
+          countPrecise: dateAndTimeValue['instanceCount'] as int,
+        );
+
+        //add the workout object to the workout list
+        workoutList.add(workoutObject);
+      }
+
+      //return the workout list
+      return workoutList;
+    } catch (e) {
+      print('Error occurred while fetching all workouts: $e');
+      return [];
+    }
   }
 }

@@ -90,3 +90,5 @@ Score per count
 
 From the above tables we can clearly identify the relations between the table and also avoid the duplication as much as possible.
 
+Creation of the workout:
+when we create a workout it should get added to the workout table and it should also create a new row in the date and time table with the current date and time and the count should be set to 0. The nth time today should be set to 0, the workout type and score per count should be set to the default values, in their specified tables. The new workout instance in the database should have references to the workout type and score per count tables.

@@ -39,8 +39,4 @@ class Workout {
       'countPrecise': countPrecise,
     };
   }
-
-  //all of the above details of the workout should be retrieved by performing querry on each table and then combining the results.
-
-  //the workout class should also contain the methods to perform the CRUD operations on the workout table.
 }
