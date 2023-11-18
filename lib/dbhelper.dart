@@ -1,4 +1,83 @@
-About the workouts project:
+import 'package:sqflite/sqflite.dart';
+import 'dart:async';
+
+class DatabaseHelper {
+  static const _databasename = "workouts.db";
+  static const _databaseversion = 1;
+
+  static const table = "my_table";
+  static const columnId = "id";
+  static const columnTitle = "title";
+  static const type = "type";
+  static const count = "count";
+  static const scorePerCount = "scorePerCount";
+
+  static Database? _database;
+
+  DatabaseHelper._privateConstructor();
+  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+
+    // if _database is null we instantiate it
+    _database = await _initDatabase();
+    return _database!;
+  }
+
+  _initDatabase() async {
+    String path = await getDatabasesPath();
+    path = path + _databasename;
+    return await openDatabase(path,
+        version: _databaseversion, onCreate: _onCreate);
+  }
+
+  Future _onCreate(Database db, int version) async {
+    await db.execute('''
+         CREATE TABLE my_table (
+  id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL,
+  type TEXT NOT NULL,
+  count INTEGER NOT NULL,
+  scorePerCount INTEGER NOT NULL
+)
+          ''');
+  }
+
+  //Functions for insert query update and delete
+
+//the insert function returns and int which is the id of the row inserted
+
+  Future<int> insert(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    return await db.insert(table, row);
+  }
+
+//querry all rows:
+  Future<List<Map<String, dynamic>>> queryAll() async {
+    Database db = await instance.database;
+    return await db.query(table);
+  }
+
+//querry by id greater than:
+
+  Future<List<Map<String, dynamic>>> queryId(int id) async {
+    Database db = await instance.database;
+    return await db.query(table, where: '$columnId > ?', whereArgs: [id]);
+  }
+  //delete all the data
+
+  Future<int> deleteAll() async {
+    Database db = await instance.database;
+    print('Deleted all the data\n\n');
+    return await db.delete(table);
+  }
+}
+
+
+
+
+/*About the workouts project:
 •	Tracks your daily, weekly, monthly and yearly progress. 
 •	Cannot update more than 300+ because of the validator in form field.
 •	Score is calculated based on the primary workouts.
@@ -55,3 +134,4 @@ Bicep Curls		custom	NULL	110
 
 Creating a new workout:
 When a new workout is created, it will be added to the database. There is only a single table of data we can perform the querries later based on our needs
+ */
