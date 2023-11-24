@@ -2,12 +2,14 @@
 //First we chech if the user exists using firestore and if not then take the user to startup screen.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workouts_v3/color_palettes_screen.dart';
 import 'package:workouts_v3/component_screen.dart';
 import 'package:workouts_v3/elevation_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
+import 'package:workouts_v3/screens/start_up_screen.dart';
 import 'package:workouts_v3/typography_screen.dart';
 
 void main() async {
@@ -48,6 +50,7 @@ const List<String> colorText = <String>[
 ];
 
 class _WrokoutsState extends State<Wrokouts> {
+  User? user;
   bool useMaterial3 = true;
   bool useLightMode = true;
   int colorSelected = 0;
@@ -59,6 +62,9 @@ class _WrokoutsState extends State<Wrokouts> {
   initState() {
     super.initState();
     themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
+    //check for user and assign to variable
+
+    user = FirebaseAuth.instance.currentUser;
   }
 
   ThemeData updateThemes(int colorIndex, bool useMaterial3, bool useLightMode) {
@@ -156,19 +162,20 @@ class _WrokoutsState extends State<Wrokouts> {
       home: LayoutBuilder(builder: (context, constraints) {
         if (constraints.maxWidth < narrowScreenWidthThreshold) {
           return
-              //
-
-              Scaffold(
-            appBar: createAppBar(),
-            body: Row(children: <Widget>[
-              createScreenFor(screenIndex, false),
-            ]),
-            bottomNavigationBar: NavigationBars(
-              onSelectItem: handleScreenChanged,
-              selectedIndex: screenIndex,
-              isExampleBar: false,
-            ),
-          );
+              //check if user is null then take to startup screen other wise load the app
+              user == null
+                  ? const StartUp()
+                  : Scaffold(
+                      appBar: createAppBar(),
+                      body: Row(children: <Widget>[
+                        createScreenFor(screenIndex, false),
+                      ]),
+                      bottomNavigationBar: NavigationBars(
+                        onSelectItem: handleScreenChanged,
+                        selectedIndex: screenIndex,
+                        isExampleBar: false,
+                      ),
+                    );
         } else {
           return Scaffold(
             appBar: createAppBar(),
