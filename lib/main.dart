@@ -1,159 +1,195 @@
-// ignore_for_file: prefer_const_constructors
-/*
-Documentation of the project:
-In the last architecture all of the user’s data is stored in cloud firestore which makes it hard to read and write data quickly and it is also quite costly. We are going to fix this using the new localized relational database model with the help of SQFLite.
-
-The Requirements:
-We need to make sure that the new architecture allows the user to do the following:
-•	Create either primary or custom workout during the time of creation
-•	Select the scoring weightage for primary workouts. (scoring weightage simply means the score per count of the workout).
-•	The user will be able to update the records of the workouts by input of the workout counts.
-We need to keep track of every workout when ever it is updated or created. 
-The new SQL architecture:
-The following table shows what its like to see the data without normalization in a single table:
-workout Name	total count today	date and time	workout type	score/count	nth time today	count precise
-Push Ups	100	yesterday	primary	1	1	100
-Pull Ups	25	yesterday	primary	3	1	25
-Push Ups	150	yesterday	primary	1	2	50
-Pull Ups	10	today	primary	3	1	10
-Bicep Curls	110	today	custom	NULL	1	110
-In the above data we can notice a couple of characteristics of data storage. Which are stated below:
-•	Only primary workouts should have the score/count values.
-•	The nth value for today increments for each update of the workout if the day is the same.
-•	The count precise keeps track of the currently input count.
-•	The input is added to the total count today if the day is the same.
-Data Consistency and Data Backup:
-We will upload the recorded data to firestore as the date changes. The date is check only when the home screen is being redrawn. We will check for the change in the date in the init method of the stateful widget and use the Boolean flag to identify the change in the date. 
-Normalization and Entity Relation Diagrams:
-The following normalization of the tables make sure that there is no duplication and will also help us in the retrieval of data for certain needs like displaying weekly progress etc. Following are the tables with fully normalized data:
-The workout Table:
-Name of workout
-{Primary key} Workout uid
-Total count (Today)
-{Foreign key} Type of Workout uid
-{Foreign key} Score per count uid
-This table contains the workouts that is generated each time the user enters count in any field.
-The Date and Time Table:
-{Primary key} Date and time of workout
-{Foreign key} Workout uid
-{Foreign key} Nth time today uid
-Count at this time
-
-
-Nth time Table
-{Primary key} Nth time today uid
-Nth time 
-
-The workout type Table:
-{Primary key} Workout Type uid
-Type name 
-
-The score per count Table:
-{Primary key} Score per count uid
-Score per count 
-
-From the above tables we can clearly identify the relations between the table and also avoid the duplication as much as possible.
-
-
- */
+//This is the material 3 demo app but we are now gonna modify it to make it a workouts app.
+//First we chech if the user exists using firestore and if not then take the user to startup screen.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:workouts_v3/color_palettes_screen.dart';
+import 'package:workouts_v3/component_screen.dart';
+import 'package:workouts_v3/elevation_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
-import 'package:workouts_v3/model/database/database_service.dart';
-import 'package:workouts_v3/model/wrokout.dart';
-import 'package:workouts_v3/widgets/create_workout.dart';
+import 'package:workouts_v3/typography_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MyApp());
+  runApp(const Wrokouts());
 }
 
-class MyApp extends StatelessWidget {
+class Wrokouts extends StatefulWidget {
+  const Wrokouts({super.key});
+
+  @override
+  State<Wrokouts> createState() => _WrokoutsState();
+}
+
+// NavigationRail shows if the screen width is greater or equal to
+// screenWidthThreshold; otherwise, NavigationBar is used for navigation.
+const double narrowScreenWidthThreshold = 450;
+
+const Color m3BaseColor = Color(0xff6750a4);
+const List<Color> colorOptions = [
+  m3BaseColor,
+  Colors.blue,
+  Colors.teal,
+  Colors.green,
+  Colors.yellow,
+  Colors.orange,
+  Colors.pink
+];
+const List<String> colorText = <String>[
+  "M3 Baseline",
+  "Blue",
+  "Teal",
+  "Green",
+  "Yellow",
+  "Orange",
+  "Pink",
+];
+
+class _WrokoutsState extends State<Wrokouts> {
+  bool useMaterial3 = true;
+  bool useLightMode = true;
+  int colorSelected = 0;
+  int screenIndex = 0;
+
+  late ThemeData themeData;
+
+  @override
+  initState() {
+    super.initState();
+    themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
+  }
+
+  ThemeData updateThemes(int colorIndex, bool useMaterial3, bool useLightMode) {
+    return ThemeData(
+        colorSchemeSeed: colorOptions[colorSelected],
+        useMaterial3: useMaterial3,
+        brightness: useLightMode ? Brightness.light : Brightness.dark);
+  }
+
+  void handleScreenChanged(int selectedScreen) {
+    setState(() {
+      screenIndex = selectedScreen;
+    });
+  }
+
+  void handleBrightnessChange() {
+    setState(() {
+      useLightMode = !useLightMode;
+      themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
+    });
+  }
+
+  void handleColorSelect(int value) {
+    setState(() {
+      colorSelected = value;
+      themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
+    });
+  }
+
+  Widget createScreenFor(int screenIndex, bool showNavBarExample) {
+    switch (screenIndex) {
+      case 0:
+        return ComponentScreen(showNavBottomBar: showNavBarExample);
+      case 1:
+        return const ColorPalettesScreen();
+      case 2:
+        return const TypographyScreen();
+      case 3:
+        return const ElevationScreen();
+      default:
+        return ComponentScreen(showNavBottomBar: showNavBarExample);
+    }
+  }
+
+  PreferredSizeWidget createAppBar() {
+    return AppBar(
+      title: useMaterial3 ? const Text("Workouts") : const Text("Material 2"),
+      actions: [
+        IconButton(
+          icon: useLightMode
+              ? const Icon(Icons.wb_sunny_outlined)
+              : const Icon(Icons.wb_sunny),
+          onPressed: handleBrightnessChange,
+          tooltip: "Toggle brightness",
+        ),
+        PopupMenuButton(
+          icon: const Icon(Icons.more_vert),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          itemBuilder: (context) {
+            return List.generate(colorOptions.length, (index) {
+              return PopupMenuItem(
+                  value: index,
+                  child: Wrap(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Icon(
+                          index == colorSelected
+                              ? Icons.color_lens
+                              : Icons.color_lens_outlined,
+                          color: colorOptions[index],
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: Text(colorText[index]))
+                    ],
+                  ));
+            });
+          },
+          onSelected: handleColorSelect,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Workouts',
-      theme: ThemeData(
-        //use the dark theme
-        brightness: Brightness.dark,
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Workouts'),
-    );
-  }
-}
+      title: 'Workouts Project V3',
+      themeMode: useLightMode ? ThemeMode.light : ThemeMode.dark,
+      theme: themeData,
+      home: LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth < narrowScreenWidthThreshold) {
+          return
+              //
 
-class MyHomePage extends StatefulWidget {
-  final String title;
-  const MyHomePage({super.key, required this.title});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  List<Workout> workouts = [];
-  @override
-  void initState() {
-    var db = DatabaseService();
-
-    super.initState();
-    db.fetchAll().then((result) {
-      setState(() {
-        workouts = result;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return CreateWorkout();
-                      },
-                    ));
-                  },
-                  child: Text('Create Workout'),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: workouts.length,
-                  itemBuilder: (context, index) {
-                    Workout? workout;
-                    if (workouts.isNotEmpty) {
-                      workout = workouts[index];
-                    }
-                    return ListTile(
-                      title: Text(workout?.workoutName ?? ''),
-                      subtitle: Text(workout?.workoutType ?? ''),
-                      trailing: Text(workout?.totalCountToday.toString() ?? ''),
-                    );
-                  },
-                ),
-              ],
+              Scaffold(
+            appBar: createAppBar(),
+            body: Row(children: <Widget>[
+              createScreenFor(screenIndex, false),
+            ]),
+            bottomNavigationBar: NavigationBars(
+              onSelectItem: handleScreenChanged,
+              selectedIndex: screenIndex,
+              isExampleBar: false,
             ),
-          ),
-        ),
-      ),
+          );
+        } else {
+          return Scaffold(
+            appBar: createAppBar(),
+            body: SafeArea(
+              bottom: false,
+              top: false,
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: NavigationRailSection(
+                          onSelectItem: handleScreenChanged,
+                          selectedIndex: screenIndex)),
+                  const VerticalDivider(thickness: 1, width: 1),
+                  createScreenFor(screenIndex, true),
+                ],
+              ),
+            ),
+          );
+        }
+      }),
     );
   }
 }

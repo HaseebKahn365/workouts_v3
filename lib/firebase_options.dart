@@ -4,16 +4,6 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -67,7 +57,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '66066305844',
     projectId: 'workouts-v3',
     storageBucket: 'workouts-v3.appspot.com',
-    iosClientId: '66066305844-kmobk4uui9q6jandu4fn0pj0apqkeh5m.apps.googleusercontent.com',
+    iosClientId:
+        '66066305844-kmobk4uui9q6jandu4fn0pj0apqkeh5m.apps.googleusercontent.com',
     iosBundleId: 'com.example.workoutsV3',
   );
 
@@ -77,7 +68,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '66066305844',
     projectId: 'workouts-v3',
     storageBucket: 'workouts-v3.appspot.com',
-    iosClientId: '66066305844-849rf7a02trhv091h903sapbqdgutl9v.apps.googleusercontent.com',
+    iosClientId:
+        '66066305844-849rf7a02trhv091h903sapbqdgutl9v.apps.googleusercontent.com',
     iosBundleId: 'com.example.workoutsV3.RunnerTests',
   );
 }
