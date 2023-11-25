@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TypographyScreen extends StatelessWidget {
-  const TypographyScreen({super.key});
+class Competition extends StatelessWidget {
+  const Competition({super.key});
 
   @override
   Widget build(BuildContext context) {

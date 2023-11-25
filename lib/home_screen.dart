@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
-class ComponentScreen extends StatelessWidget {
-  const ComponentScreen({super.key, required this.showNavBottomBar});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.showNavBottomBar});
 
   final bool showNavBottomBar;
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -27,7 +32,7 @@ class ComponentScreen extends StatelessWidget {
                 _colDivider,
                 const Dialogs(),
                 _colDivider,
-                showNavBottomBar
+                widget.showNavBottomBar
                     ? const NavigationBars(
                         selectedIndex: 0,
                         isExampleBar: true,

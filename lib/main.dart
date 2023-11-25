@@ -3,14 +3,14 @@
 
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:workouts_v3/color_palettes_screen.dart';
-import 'package:workouts_v3/component_screen.dart';
+import 'package:workouts_v3/stats_screen.dart';
+import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/elevation_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
 import 'package:workouts_v3/typography_screen.dart';
@@ -63,6 +63,33 @@ class _WrokoutsState extends State<Wrokouts> {
 
   late ThemeData themeData;
 
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth!.accessToken,
+      idToken: googleAuth!.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<void> signOut() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut();
+    setState(() {
+      user = null;
+    });
+  }
+
   @override
   initState() {
     super.initState();
@@ -70,6 +97,20 @@ class _WrokoutsState extends State<Wrokouts> {
     //check for user and assign to variable
 
     user = FirebaseAuth.instance.currentUser;
+  }
+
+  String getAppBarTitle(int screenIndex) {
+    switch (screenIndex) {
+      case 0:
+        return "Home";
+      case 1:
+        return "Stats";
+      case 2:
+        return "Competition";
+
+      default:
+        return "Home";
+    }
   }
 
   ThemeData updateThemes(int colorIndex, bool useMaterial3, bool useLightMode) {
@@ -102,15 +143,14 @@ class _WrokoutsState extends State<Wrokouts> {
   Widget createScreenFor(int screenIndex, bool showNavBarExample) {
     switch (screenIndex) {
       case 0:
-        return ComponentScreen(showNavBottomBar: showNavBarExample);
+        return HomeScreen(showNavBottomBar: showNavBarExample);
       case 1:
-        return const ColorPalettesScreen();
+        return const Stats();
       case 2:
-        return const TypographyScreen();
+        return const Competition();
       case 3:
-        return const ElevationScreen();
       default:
-        return ComponentScreen(showNavBottomBar: showNavBarExample);
+        return HomeScreen(showNavBottomBar: showNavBarExample);
     }
   }
 
@@ -258,25 +298,20 @@ class _WrokoutsState extends State<Wrokouts> {
                         fontSize: 20,
                         fontWeight: FontWeight.w300,
                       )),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 50),
                 ],
               ),
             ),
             bodyWidget: GestureDetector(
               onTap: () async {
-                var localContext = context;
-                //sign in with google
-                await FirebaseAuth.instance.signInWithPopup(
-                    GoogleAuthProvider()); //this will open a popup for google sign in
-                //check if user is null then take to startup screen other wise load the app
                 setState(() {
-                  user = FirebaseAuth.instance.currentUser;
+                  signInWithGoogle().then((value) {
+                    setState(() {
+                      print("User signed in with $value");
+                      user = value.user;
+                    });
+                  });
                 });
-                //Show snackbar that error occured
-                ScaffoldMessenger.of(localContext).showSnackBar(SnackBar(
-                  content: Text("Error occured"),
-                  duration: Duration(seconds: 2),
-                ));
               },
               child: Container(
                   width: 200,
@@ -333,7 +368,7 @@ class _WrokoutsState extends State<Wrokouts> {
 
   PreferredSizeWidget createAppBar() {
     return AppBar(
-      title: useMaterial3 ? const Text("Workouts") : const Text("Material 2"),
+      title: Text(getAppBarTitle(screenIndex)),
       actions: [
         IconButton(
           icon: useLightMode
@@ -341,6 +376,18 @@ class _WrokoutsState extends State<Wrokouts> {
               : const Icon(Icons.wb_sunny),
           onPressed: handleBrightnessChange,
           tooltip: "Toggle brightness",
+        ),
+        //create a signout button
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () {
+            signOut().then((value) {
+              setState(() {
+                user = null;
+              });
+            });
+          },
+          tooltip: "Sign out",
         ),
         PopupMenuButton(
           icon: const Icon(Icons.more_vert),

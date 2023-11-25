@@ -7,8 +7,8 @@ const Widget divider = SizedBox(height: 10);
 // be displayed in a row.
 const double narrowScreenWidthThreshold = 400;
 
-class ColorPalettesScreen extends StatelessWidget {
-  const ColorPalettesScreen({super.key});
+class Stats extends StatelessWidget {
+  const Stats({super.key});
 
   @override
   Widget build(BuildContext context) {
