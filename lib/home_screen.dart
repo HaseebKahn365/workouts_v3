@@ -1,3 +1,4 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -379,21 +380,21 @@ class _DialogsState extends State<Dialogs> {
 const List<NavigationDestination> appBarDestinations = [
   NavigationDestination(
     tooltip: "",
-    icon: Icon(Icons.widgets_outlined),
+    icon: Icon(FluentIcons.home_24_regular),
     label: 'Home',
-    selectedIcon: Icon(Icons.widgets),
+    selectedIcon: Icon(FluentIcons.home_24_filled),
   ),
   NavigationDestination(
     tooltip: "",
-    icon: Icon(Icons.format_paint_outlined),
+    icon: Icon(FluentIcons.book_coins_24_regular, size: 28),
     label: 'Stats',
-    selectedIcon: Icon(Icons.format_paint),
+    selectedIcon: Icon(FluentIcons.book_coins_24_filled, size: 28),
   ),
   NavigationDestination(
     tooltip: "",
-    icon: Icon(Icons.text_snippet_outlined),
+    icon: Icon(FluentIcons.people_28_regular),
     label: 'Competition',
-    selectedIcon: Icon(Icons.text_snippet),
+    selectedIcon: Icon(FluentIcons.people_28_filled),
   ),
 ];
 
