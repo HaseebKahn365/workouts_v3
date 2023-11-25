@@ -9,9 +9,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workouts_v3/stats_screen.dart';
 import 'package:workouts_v3/home_screen.dart';
-import 'package:workouts_v3/elevation_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
 import 'package:workouts_v3/typography_screen.dart';
 
@@ -63,6 +63,23 @@ class _WrokoutsState extends State<Wrokouts> {
 
   late ThemeData themeData;
 
+  //the following code saves the theme settings:
+  void _loadSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      useLightMode = prefs.getBool('useLightMode') ?? true;
+      colorSelected = prefs.getInt('colorSelected') ?? 0;
+      themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
+      print('Loaded the sharedPrefrences themeData');
+    });
+  }
+
+  void _saveSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('useLightMode', useLightMode);
+    prefs.setInt('colorSelected', colorSelected);
+  }
+
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -93,8 +110,8 @@ class _WrokoutsState extends State<Wrokouts> {
   @override
   initState() {
     super.initState();
+    _loadSettings();
     themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
-    //check for user and assign to variable
 
     user = FirebaseAuth.instance.currentUser;
   }
@@ -111,6 +128,366 @@ class _WrokoutsState extends State<Wrokouts> {
       default:
         return "Home";
     }
+  }
+
+  Widget returnDrawer() {
+    return Builder(builder: (context) {
+      return Drawer(
+        //reduce the height of the drawer header
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            Container(
+              height: 150,
+              child: DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 30.0),
+                  child: Text(
+                    'Settings',
+                    style: TextStyle(fontSize: 32),
+                  ),
+                ),
+              ),
+            ),
+            const ListTile(
+              title: Text('Colors Picker'),
+            ),
+
+            //create a gridview of 7 colors having an icon at each index value: index, remove the scrolling
+
+            Container(
+              height: 120,
+              child: GridView.count(
+                scrollDirection: Axis.horizontal,
+                crossAxisCount: 2,
+                children: List.generate(colorOptions.length, (index) {
+                  return Center(
+                    child: IconButton(
+                      icon: Icon(
+                        index == colorSelected
+                            ? FluentIcons.checkmark_square_24_filled
+                            : FluentIcons.checkbox_unchecked_24_filled,
+                        color: colorOptions[index],
+                        size: 33,
+                      ),
+                      onPressed: () {
+                        handleColorSelect(index);
+                        _saveSettings();
+                      },
+                    ),
+                  );
+                }),
+              ),
+            ),
+
+            const ListTile(
+              title: Text('Dark Mode'),
+            ),
+            //creating a toggle button to turn on and off the dark theme
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(12, 5, 0, 0),
+                child: Switch(
+                  value: !useLightMode,
+                  onChanged: (value) {
+                    handleBrightnessChange();
+                    _saveSettings();
+                  },
+                ),
+              ),
+            ),
+
+            //creating account settings:
+            const ListTile(
+              title: Text('Account Settings', style: TextStyle(fontSize: 17)),
+            ),
+
+            //creating a text button to launch the alert dialogue box
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 12, top: 5, bottom: 5),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        //create an alert dialogue box to change the name and picture of the user
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Change Profile'),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      //create a container with a gesture detector with logic to pick an image from the gallery:
+
+                                      // Container(
+                                      //   height: 150,
+                                      //   width: 150,
+                                      //   child: GestureDetector(
+                                      //     onTap: () {
+                                      //       //pick image from gallery
+                                      //       print('tapped on the image');
+                                      //       // _getFromGallery();
+                                      //     },
+                                      //     //create a rounded rectangle with a child of an icon
+                                      //     child: Padding(
+                                      //       padding: const EdgeInsets.symmetric(
+                                      //           horizontal: 30.0),
+
+                                      //       //if the imageFile is not null then show the image else show the icon
+                                      //       child: _tempImageFile != null
+                                      //           ? ClipRRect(
+                                      //               borderRadius:
+                                      //                   BorderRadius.circular(
+                                      //                       10),
+                                      //               child: Container(
+                                      //                 color: Theme.of(context)
+                                      //                     .colorScheme
+                                      //                     .secondaryContainer
+                                      //                     .withOpacity(1),
+                                      //                 child: Image.file(
+                                      //                     _tempImageFile!,
+                                      //                     fit: BoxFit.cover),
+                                      //               ))
+                                      //           : ClipRRect(
+                                      //               borderRadius:
+                                      //                   BorderRadius.circular(
+                                      //                       10),
+                                      //               child: Container(
+                                      //                 color: Theme.of(context)
+                                      //                     .colorScheme
+                                      //                     .secondaryContainer,
+                                      //                 child: Icon(
+                                      //                     FluentIcons
+                                      //                         .camera_add_48_filled,
+                                      //                     color:
+                                      //                         Theme.of(context)
+                                      //                             .colorScheme
+                                      //                             .primary),
+                                      //               ),
+                                      //             ),
+                                      //     ),
+                                      //   ),
+                                      // ),
+
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+
+                                      //creating a text field to enter the text
+                                      // TextField(
+                                      //   controller: userNameController,
+                                      //   decoration: InputDecoration(
+                                      //     contentPadding: EdgeInsets.all(10),
+                                      //     border: OutlineInputBorder(),
+                                      //     labelText: userName,
+                                      //   ),
+                                      //   onChanged: (value) {
+                                      //     _tempUserName = value;
+                                      //   },
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  //create a cancel button
+                                  // TextButton(
+                                  //   child: const Text('Cancel'),
+                                  //   onPressed: () {
+                                  //     setState(() {
+                                  //       userNameController.clear();
+                                  //       _tempImageFile = imageFile;
+                                  //       Navigator.of(context).pop();
+                                  //     });
+                                  //   },
+                                  // ),
+                                  // //create a save button with rounded border outline
+
+                                  // ElevatedButton(
+                                  //   onPressed: () {
+                                  //     setState(() {
+                                  //       if (_tempUserName.isNotEmpty) {
+                                  //         userName = _tempUserName;
+                                  //       }
+                                  //       userNameController.clear();
+                                  //       //change the user Image here
+                                  //       imageFile = _tempImageFile;
+                                  //     });
+                                  //     Navigator.of(context).pop();
+                                  //   },
+                                  //   child: const Text('Save'),
+                                  //   //make elevation 0 and rounded corners
+                                  //   style: ElevatedButton.styleFrom(
+                                  //     elevation: 0,
+                                  //     shape: RoundedRectangleBorder(
+                                  //       borderRadius: BorderRadius.circular(10),
+                                  //     ),
+                                  //     backgroundColor: Theme.of(context)
+                                  //         .colorScheme
+                                  //         .secondaryContainer
+                                  //         .withOpacity(1),
+                                  //   ),
+                                  // ),
+                                ],
+                              );
+                            });
+                      },
+                      child: const Text('Change Profile'),
+                      //make elevation 0 and rounded corners
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .secondaryContainer
+                            .withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  //icon for change
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Icon(FluentIcons.edit_16_filled,
+                        color:
+                            Theme.of(context).colorScheme.secondaryContainer),
+                  )
+                ],
+              ),
+            ), //end of the alert dialogue box
+
+            //creating an alert dialogue box to send feedback in the same fashion as above
+
+            const ListTile(
+              title: Text('Send Feedback', style: TextStyle(fontSize: 17)),
+            ),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 12, top: 5, bottom: 5),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        //launch
+                      },
+                      child: const Text('Send Feedback'),
+                      //make elevation 0 and rounded corners
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .secondaryContainer
+                            .withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+
+                  //icon for feedback
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Icon(FluentIcons.alert_12_filled,
+                        color:
+                            Theme.of(context).colorScheme.secondaryContainer),
+                  )
+                ],
+              ),
+            ), //end of the feedback button
+
+            //working on the reset button
+            const ListTile(
+              title: Text('Reset Everything'),
+            ),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 12, top: 5, bottom: 5),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Reset Everything'),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: const <Widget>[
+                                      Text(
+                                          'Are you sure you want to reset everything? Type \'reset all\' to confirm\n\n'),
+
+                                      //creating a text field to enter the text
+                                      TextField(
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(10),
+                                          border: OutlineInputBorder(),
+                                          labelText: 'reset all',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Yes'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('No'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            });
+                      },
+                      child: const Text('Reset my Data'),
+                      //make elevation 0 and rounded corners
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .secondaryContainer
+                            .withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+
+                  //icon for reset
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Icon(FluentIcons.delete_16_filled,
+                        color:
+                            Theme.of(context).colorScheme.secondaryContainer),
+                  )
+                ],
+              ),
+            ), //end of the reset button
+          ],
+        ),
+      );
+    });
   }
 
   ThemeData updateThemes(int colorIndex, bool useMaterial3, bool useLightMode) {
@@ -148,7 +525,7 @@ class _WrokoutsState extends State<Wrokouts> {
         return const Stats();
       case 2:
         return const Competition();
-      case 3:
+
       default:
         return HomeScreen(showNavBottomBar: showNavBarExample);
     }
@@ -369,55 +746,6 @@ class _WrokoutsState extends State<Wrokouts> {
   PreferredSizeWidget createAppBar() {
     return AppBar(
       title: Text(getAppBarTitle(screenIndex)),
-      actions: [
-        IconButton(
-          icon: useLightMode
-              ? const Icon(Icons.wb_sunny_outlined)
-              : const Icon(Icons.wb_sunny),
-          onPressed: handleBrightnessChange,
-          tooltip: "Toggle brightness",
-        ),
-        //create a signout button
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () {
-            signOut().then((value) {
-              setState(() {
-                user = null;
-              });
-            });
-          },
-          tooltip: "Sign out",
-        ),
-        PopupMenuButton(
-          icon: const Icon(Icons.more_vert),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          itemBuilder: (context) {
-            return List.generate(colorOptions.length, (index) {
-              return PopupMenuItem(
-                  value: index,
-                  child: Wrap(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Icon(
-                          index == colorSelected
-                              ? Icons.color_lens
-                              : Icons.color_lens_outlined,
-                          color: colorOptions[index],
-                        ),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: Text(colorText[index]))
-                    ],
-                  ));
-            });
-          },
-          onSelected: handleColorSelect,
-        ),
-      ],
     );
   }
 
@@ -435,6 +763,7 @@ class _WrokoutsState extends State<Wrokouts> {
               user == null
                   ? StartUp()
                   : Scaffold(
+                      drawer: returnDrawer(),
                       appBar: createAppBar(),
                       body: Row(children: <Widget>[
                         createScreenFor(screenIndex, false),
@@ -449,6 +778,7 @@ class _WrokoutsState extends State<Wrokouts> {
           return user == null
               ? StartUp()
               : Scaffold(
+                  drawer: returnDrawer(),
                   appBar: createAppBar(),
                   body: SafeArea(
                     bottom: false,
