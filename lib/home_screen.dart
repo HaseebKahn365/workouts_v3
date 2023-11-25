@@ -15,32 +15,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.fromLTRB(10, 40, 10, 0),
         child: Align(
           alignment: Alignment.topCenter,
-          child: SizedBox(
-            width: _maxWidthConstraint,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                _colDivider,
-                _colDivider,
-                const Buttons(),
-                _colDivider,
-                const FloatingActionButtons(),
-                _colDivider,
-                const Cards(),
-                _colDivider,
-                const Dialogs(),
-                _colDivider,
-                widget.showNavBottomBar
-                    ? const NavigationBars(
-                        selectedIndex: 0,
-                        isExampleBar: true,
-                      )
-                    : Container(),
-              ],
-            ),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              //create an outlined button that says create workout
+              Container(
+                width: 100, // Set the width of the Container
+                alignment:
+                    Alignment.center, // Center the button within the Container
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.add),
+                  label: const Text("Create Workout"),
+                ),
+              ),
+            ],
           ),
         ),
       ),
