@@ -33,26 +33,8 @@ class Wrokouts extends StatefulWidget {
 const double narrowScreenWidthThreshold = 450;
 
 const Color m3BaseColor = Color(0xff6750a4);
-const List<Color> colorOptions = [
-  m3BaseColor,
-  Colors.blue,
-  Colors.teal,
-  Colors.green,
-  Colors.yellow,
-  Colors.orange,
-  Colors.pink,
-  Colors.lime
-];
-const List<String> colorText = <String>[
-  "M3 Baseline",
-  "Blue",
-  "Teal",
-  "Green",
-  "Yellow",
-  "Orange",
-  "Pink",
-  "Lime"
-];
+const List<Color> colorOptions = [m3BaseColor, Colors.blue, Colors.teal, Colors.green, Colors.yellow, Colors.orange, Colors.pink, Colors.lime];
+const List<String> colorText = <String>["M3 Baseline", "Blue", "Teal", "Green", "Yellow", "Orange", "Pink", "Lime"];
 
 class _WrokoutsState extends State<Wrokouts> {
   User? user;
@@ -86,8 +68,7 @@ class _WrokoutsState extends State<Wrokouts> {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -167,9 +148,7 @@ class _WrokoutsState extends State<Wrokouts> {
                   return Center(
                     child: IconButton(
                       icon: Icon(
-                        index == colorSelected
-                            ? FluentIcons.checkmark_square_24_filled
-                            : FluentIcons.checkbox_unchecked_24_filled,
+                        index == colorSelected ? FluentIcons.checkmark_square_24_filled : FluentIcons.checkbox_unchecked_24_filled,
                         color: colorOptions[index],
                         size: 33,
                       ),
@@ -345,19 +324,14 @@ class _WrokoutsState extends State<Wrokouts> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .secondaryContainer
-                            .withOpacity(0.5),
+                        backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
                       ),
                     ),
                   ),
                   //icon for change
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
-                    child: Icon(FluentIcons.edit_16_filled,
-                        color:
-                            Theme.of(context).colorScheme.secondaryContainer),
+                    child: Icon(FluentIcons.edit_16_filled, color: Theme.of(context).colorScheme.secondaryContainer),
                   )
                 ],
               ),
@@ -386,10 +360,7 @@ class _WrokoutsState extends State<Wrokouts> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .secondaryContainer
-                            .withOpacity(0.5),
+                        backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
                       ),
                     ),
                   ),
@@ -398,9 +369,7 @@ class _WrokoutsState extends State<Wrokouts> {
 
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
-                    child: Icon(FluentIcons.alert_12_filled,
-                        color:
-                            Theme.of(context).colorScheme.secondaryContainer),
+                    child: Icon(FluentIcons.alert_12_filled, color: Theme.of(context).colorScheme.secondaryContainer),
                   )
                 ],
               ),
@@ -427,8 +396,7 @@ class _WrokoutsState extends State<Wrokouts> {
                                 content: SingleChildScrollView(
                                   child: ListBody(
                                     children: const <Widget>[
-                                      Text(
-                                          'Are you sure you want to reset everything? Type \'reset all\' to confirm\n\n'),
+                                      Text('Are you sure you want to reset everything? Type \'reset all\' to confirm\n\n'),
 
                                       //creating a text field to enter the text
                                       TextField(
@@ -465,10 +433,7 @@ class _WrokoutsState extends State<Wrokouts> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .secondaryContainer
-                            .withOpacity(0.5),
+                        backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
                       ),
                     ),
                   ),
@@ -477,9 +442,7 @@ class _WrokoutsState extends State<Wrokouts> {
 
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
-                    child: Icon(FluentIcons.delete_16_filled,
-                        color:
-                            Theme.of(context).colorScheme.secondaryContainer),
+                    child: Icon(FluentIcons.delete_16_filled, color: Theme.of(context).colorScheme.secondaryContainer),
                   )
                 ],
               ),
@@ -491,10 +454,7 @@ class _WrokoutsState extends State<Wrokouts> {
   }
 
   ThemeData updateThemes(int colorIndex, bool useMaterial3, bool useLightMode) {
-    return ThemeData(
-        colorSchemeSeed: colorOptions[colorSelected],
-        useMaterial3: useMaterial3,
-        brightness: useLightMode ? Brightness.light : Brightness.dark);
+    return ThemeData(colorSchemeSeed: colorOptions[colorSelected], useMaterial3: useMaterial3, brightness: useLightMode ? Brightness.light : Brightness.dark);
   }
 
   void handleScreenChanged(int selectedScreen) {
@@ -540,10 +500,8 @@ class _WrokoutsState extends State<Wrokouts> {
             //make the background color adopt to the dark and light theme
             decoration: PageDecoration(
               pageColor: Theme.of(context).colorScheme.background,
-              bodyTextStyle: TextStyle(
-                  color: Theme.of(context).textTheme.bodyLarge?.color),
-              titleTextStyle: TextStyle(
-                  color: Theme.of(context).textTheme.displayLarge?.color),
+              bodyTextStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+              titleTextStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color),
             ),
             titleWidget: Padding(
               padding: const EdgeInsets.only(top: 20.0),
@@ -590,9 +548,7 @@ class _WrokoutsState extends State<Wrokouts> {
                       return Center(
                         child: IconButton(
                           icon: Icon(
-                            index == colorSelected
-                                ? FluentIcons.checkmark_square_24_filled
-                                : FluentIcons.checkbox_unchecked_24_filled,
+                            index == colorSelected ? FluentIcons.checkmark_square_24_filled : FluentIcons.checkbox_unchecked_24_filled,
                             color: colorOptions[index],
                             size: 50,
                           ),
@@ -641,10 +597,8 @@ class _WrokoutsState extends State<Wrokouts> {
             //create a page with a gesture detector container with child as google.png
             decoration: PageDecoration(
               pageColor: Theme.of(context).colorScheme.background,
-              bodyTextStyle: TextStyle(
-                  color: Theme.of(context).textTheme.bodyLarge?.color),
-              titleTextStyle: TextStyle(
-                  color: Theme.of(context).textTheme.displayLarge?.color),
+              bodyTextStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+              titleTextStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color),
             ),
             titleWidget: Padding(
               padding: const EdgeInsets.only(top: 20.0),
@@ -681,45 +635,39 @@ class _WrokoutsState extends State<Wrokouts> {
             ),
             bodyWidget: GestureDetector(
               onTap: () async {
+                // setState(() {
+                //   signInWithGoogle().then((value) {
+                //   });
+                // });
+                print("Sign in button pressed!");
                 setState(() {
-                  signInWithGoogle().then((value) {
-                    setState(() {
-                      print("User signed in with $value");
-                      user = value.user;
-                    });
-                  });
+                  //don't use the google sign in for now. just use a local user
+                  // user = User();
+                  user = FirebaseAuth.instance.currentUser;
                 });
               },
               child: Container(
                   width: 200,
                   //give it a rounded border
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Theme.of(context).colorScheme.surface,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primaryContainer
-                              .withOpacity(0.5),
-                          spreadRadius: 20,
-                          blurRadius: 30,
-                          offset: Offset(0, 3),
-                        )
-                      ]),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Theme.of(context).colorScheme.surface, boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                      spreadRadius: 20,
+                      blurRadius: 30,
+                      offset: Offset(0, 3),
+                    )
+                  ]),
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Image.asset("assets/images/google.png",
-                            fit: BoxFit.cover),
+                        child: Image.asset("assets/images/google.png", fit: BoxFit.cover),
                       ),
                       Padding(
                           padding: const EdgeInsets.only(bottom: 15),
                           child: Text(
                             "Sign in with Google",
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w300),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
                           ))
                     ],
                   )),
@@ -760,7 +708,7 @@ class _WrokoutsState extends State<Wrokouts> {
         if (constraints.maxWidth < narrowScreenWidthThreshold) {
           return
               //check if user is null then take to startup screen other wise load the app
-              user == null
+              user != null
                   ? StartUp()
                   : Scaffold(
                       drawer: returnDrawer(),
@@ -785,11 +733,7 @@ class _WrokoutsState extends State<Wrokouts> {
                     top: false,
                     child: Row(
                       children: <Widget>[
-                        Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: NavigationRailSection(
-                                onSelectItem: handleScreenChanged,
-                                selectedIndex: screenIndex)),
+                        Padding(padding: const EdgeInsets.symmetric(horizontal: 5), child: NavigationRailSection(onSelectItem: handleScreenChanged, selectedIndex: screenIndex)),
                         const VerticalDivider(thickness: 1, width: 1),
                         createScreenFor(screenIndex, true),
                       ],
