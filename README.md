@@ -1,94 +1,57 @@
-About the workouts project:
-•	Tracks your daily, weekly, monthly and yearly progress. 
-•	Cannot update more than 300+ because of the validator in form field.
-•	Score is calculated based on the primary workouts.
-•	Create your custom workouts. 
-•	Shows your stats: it shows you all the score for the current day, week, month and year.
-What is going to change in this version:
-in this version of the app we are going to migrate our existing app that heavily relies on the cloud firestore to an SQL relational database using the sqflite package. We are doing so in order to localize the user data and avoid data corruption when the internet is not available. Before proceding here is a comparison of what data looks like in the previous version:
-Database Structure (collections):
-Collections:
-Users
-CommonData
+Certainly! Here is the combined Markdown content for your `README.md` file:
 
-Database Structure (documents):
-user:
-username
-uid
-isHaseeb //toggles request for cloud function
-userImage
-email
-password
-docDay
-docDayRec
-docWeek
-docWeekRec
-docMonth
-docMonthRec
-docYear
-docYearRec
-bestDay
-bestWeek
-bestMonth
-isBlocked
-allYearsRec
-pullcount
-pushcount
+```markdown
+# Workouts V3
 
+## Introduction
+Workouts V3 is a personal tracker designed to help users store records based on the categories they create. Categories can be of two types: interval or count. Interval categories track records in terms of duration (e.g., 30mins), while counting categories track activities in terms of counts (e.g., Pushups: 30).
 
+## UI Walkthrough
+At the home screen, there's a "Create Category" button allowing users to create a new category by entering its name and type in an alert dialogue box. Once a category is created, users can click on it to navigate to the respective category screen. Each category can have multiple activities (e.g., Physics, Math, Computer Science) created by clicking a "Create" button on the category screen. Tags can be added to these activities for different purposes. The activity container is then used to add details like duration or count, depending on the category type.
 
-In this architecture all of the user’s data is stored in cloud firestore which makes it hard to read and write data quickly and it is also quite costly. We are going to fix this using the new localized relational database model with the help of SQFLite.
+## Data Storage Strategy
+The data is stored in CSV files for easy processing and analysis. There are two main files:
+### CSV1
+This file contains category details with a specific field "ActivityConnectUID" mapping the category to another file (CSV2).
+```csv
+Category Name, Category_Type, ActivityConnectUID
+Study, Interval, Sjj12h312324kj
+Workout, Count, Sdfoh12h23ihh
+```
 
-The Requirements:
-We need to make sure that the new architecture allows the user to do the following:
-•	Create either primary or custom workout during the time of creation
-•	Select the scoring weightage for primary workouts. (scoring weightage simply means the score per count of the workout).
-•	The user will be able to update the records of the workouts by input of the workout counts.
-We need to keep track of every workout when ever it is updated or created. 
-The new SQL architecture:
-The following table shows what its like to see the data without normalization in a single table:
-workout Name	total count today	date and time	workout type	score/count	nth time today	count precise
-Push Ups	100	yesterday	primary	1	1	100
-Pull Ups	25	yesterday	primary	3	1	25
-Push Ups	150	yesterday	primary	1	2	50
-Pull Ups	10	today	primary	3	1	10
-Bicep Curls	110	today	custom	NULL	1	110
-In the above data we can notice a couple of characteristics of data storage. Which are stated below:
-•	Only primary workouts should have the score/count values.
-•	The nth value for today increments for each update of the workout if the day is the same.
-•	The count precise keeps track of the currently input count.
-•	The input is added to the total count today if the day is the same.
-Data Consistency and Data Backup:
-We will upload the recorded data to firestore as the date changes. The date is check only when the home screen is being redrawn. We will check for the change in the date in the init method of the stateful widget and use the Boolean flag to identify the change in the date. 
-Normalization and Entity Relation Diagrams:
-The following normalization of the tables make sure that there is no duplication and will also help us in the retrieval of data for certain needs like displaying weekly progress etc. Following are the tables with fully normalized data:
-The workout Table:
-Name of workout
-{Primary key} Workout uid
-Total count (Today)
-{Foreign key} Type of Workout uid
-{Foreign key} Score per count uid
-This table contains the workouts that is generated each time the user enters count in any field.
-The Date and Time Table:
-{Primary key} Date and time of workout
-{Foreign key} Workout uid
-{Foreign key} Nth time today uid
-Count at this time
+### CSV2 [Sjj12h312324kj]
+Details of each activity under the "Study" category.
+```csv
+Name, Tags, createdOn, Map<TimeStamp, Count/Duration>
+Math, Calculus, CVT, 20/1/2024, 20/1/2024 12:00: 30mins, 20/1/2024 1:00: 30mins
+Physics, Thermodynamics, 20/1/2024, 20/1/2024 12:00: 30mins, 20/1/2024 1:00: 30mins
+```
 
+### CSV2 [Sdfoh12h23ihh]
+Details of each activity under the "Workout" category.
+```csv
+Name, Tags, createdOn, Map<TimeStamp, Count/Duration>
+Pushups, Diamond, 20/1/2024, 20/1/2024 12:00: 120, 20/1/2024 1:00: 30mins
+Bench-press, 120kg, 20/1/2024, 20/1/2024 12:00: 100, 20/1/2024 1:00: 30mins
+```
 
-Nth time Table
-{Primary key} Nth time today uid
-Nth time 
+### DEVLogs Storage Strategy
+DEVLogs interface is similar to other categories, with an optimized UI for project progress tracking. Data is stored in Cloud Firestore and Firebase Storage. Projects in DEVLogs have an "Add Image" button and a container for entering tags in the form of chips. Images can be uploaded individually or in batches.
 
-The workout type Table:
-{Primary key} Workout Type uid
-Type name 
+Firestore data structure:
+- Collection name: DEVLogs
+- Document name: Project Workouts V3 + createdOn Timestamp
+```markdown
+Activity Date   Map<dateTime, imageURLs>   Description
+20/1/2024 12:00    20/1/2024 12:00: firebaseStorage.com/imageurl1    Working on implementing UI
+                     20/1/2024 12:00: firebaseStorage.com/imageurl2
+20/1/2024 12:00    20/1/2024 2:00: firebaseStorage.com/imageurl    Implemented Cloud Firestore
+```
 
-The score per count Table:
-{Primary key} Score per count uid
-Score per count 
+## Probability Concept
+The probability of doing an activity within an interval of 1 hour is calculated using the Poisson random variable formula. The formula involves fetching all records under the current time and a 1-hour interval from the CSV2 file. The average count is then calculated (total counts or intervals of activity / total number of records), serving as the lambda value for the Poisson formula. The probability of doing Average+50 activities is computed as:
+\[ P(X=i) = \frac{e^{-\lambda} \cdot \lambda^i}{i!} \]
+The probability value is used to display a linear progress indicator between 1 and 0.
+```
 
-From the above tables we can clearly identify the relations between the table and also avoid the duplication as much as possible.
-
-Creation of the workout:
-when we create a workout it should get added to the workout table and it should also create a new row in the date and time table with the current date and time and the count should be set to 0. The nth time today should be set to 0, the workout type and score per count should be set to the default values, in their specified tables. The new workout instance in the database should have references to the workout type and score per count tables.
+You can now paste this Markdown content into your `README.md` file. If you have any specific formatting preferences or additional details to include, feel free to let me know!
