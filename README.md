@@ -1,4 +1,3 @@
-Certainly! Here is the combined Markdown content for your `README.md` file:
 
 ```markdown
 # Workouts V3
