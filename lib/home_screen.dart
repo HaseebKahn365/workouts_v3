@@ -1,10 +1,12 @@
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+
 import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.showNavBottomBar});
@@ -16,15 +18,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Read the contents of the categories.csv and activity.csv and store them as a List<String>
-  List<dynamic> categories = [];
-  List<dynamic> activities = [];
-
-  // Load CSV when the widget is initialized
   @override
   void initState() {
     super.initState();
   }
+
+  bool radioSelection = false;
 
   Widget build(BuildContext context) {
     return Expanded(
@@ -34,133 +33,124 @@ class _HomeScreenState extends State<HomeScreen> {
           shrinkWrap: false,
           children: [
             //create an outlined button that says create workout
-            Container(
-              width: 100, // Set the width of the Container
-              alignment: Alignment.center, // Center the button within the Container
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add),
-                label: const Text("Add Category"),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Container(
+                width: 100, // Set the width of the Container
+                alignment: Alignment.center, // Center the button within the Container
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    //an alert dialogye box asking for the type and name of the category.
+                    //the name is taken using text field and the type is taken using radio buttons
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Create Category"),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.all(5.0),
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Category Name',
+                                ),
+                              ),
+                              //create two radio buttons for the type of category
+                              Column(
+                                children: [
+                                  Radio(
+                                    value: false,
+                                    groupValue: radioSelection,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        radioSelection = value as bool;
+                                      });
+                                    },
+                                  ),
+                                  const Text("Count Based"),
+                                  Radio(
+                                    value: true,
+                                    groupValue: radioSelection,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        radioSelection = value as bool;
+                                      });
+                                    },
+                                  ),
+                                  const Text("Time Based"),
+                                ],
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Create"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add Category"),
+                ),
               ),
             ),
 
-            //create a simple table to display the table of categories.csv
-            Table(
-              border: TableBorder.all(),
-              columnWidths: const <int, TableColumnWidth>{
-                0: IntrinsicColumnWidth(),
-                1: FlexColumnWidth(),
-                2: FixedColumnWidth(64),
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: <TableRow>[
-                TableRow(
-                  children: <Widget>[
-                    Container(
-                      color: Colors.grey,
-                      child: const Center(child: Text('Category')),
-                    ),
-                    Container(
-                      color: Colors.grey,
-                      child: const Center(child: Text('Description')),
-                    ),
-                    Container(
-                      color: Colors.grey,
-                      child: const Center(child: Text('Edit')),
-                    ),
-                  ],
-                ),
-                for (var i = 0; i < categories.length; i++)
-                  TableRow(
-                    children: <Widget>[
-                      Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Text(categories[i][0]),
-                        ),
+            //creating a card for each category using expand operator for the list
+            ...categories.map((category) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: ListTile(
+                      title: Text(category.name),
+                      subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
+                      trailing: Text(category.activityList.length.toString()),
+                      onTap: () {
+                        // Navigator.pushNamed(context, '/category', arguments: category);
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Text(categories[i][1]),
-                        ),
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: TextButton(
-                            child: const Text(
-                              "Edit",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            onPressed: () {},
-                          ),
-                        ),
-                      ),
-                    ],
+                      splashColor: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
+                    elevation: 0,
                   ),
-              ],
-            ),
-            //create anoother demo table for activities.csv
-            SizedBox(
-              height: 150,
-            ),
+                )),
 
-            Table(
-              border: TableBorder.all(),
-              columnWidths: const <int, TableColumnWidth>{
-                0: IntrinsicColumnWidth(),
-                1: FlexColumnWidth(),
-                2: FixedColumnWidth(64),
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: <TableRow>[
-                TableRow(
-                  children: <Widget>[
-                    Container(
-                      color: Colors.grey,
-                      child: const Center(child: Text('Activity')),
-                    ),
-                    Container(
-                      color: Colors.grey,
-                      child: const Center(child: Text('Description')),
-                    ),
-                    Container(
-                      color: Colors.grey,
-                      child: const Center(child: Text('Edit')),
-                    ),
-                  ],
-                ),
-                for (var i = 0; i < activities.length; i++)
-                  TableRow(
-                    children: <Widget>[
-                      Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Text(activities[i][0]),
-                        ),
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: Text(activities[i][1]),
-                        ),
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Center(
-                          child: TextButton(
-                            child: const Text(
-                              "Edit",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            onPressed: () {},
-                          ),
-                        ),
-                      ),
-                    ],
+            //card for the DEVLogs
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+              child: Card(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: ListTile(
+                  title: Text("DEVLogs"),
+                  subtitle: Text("View the logs for all the apps"),
+                  trailing: Text("0"),
+                  onTap: () {
+                    // Navigator.pushNamed(context, '/category', arguments: category);
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
-              ],
+                  splashColor: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                elevation: 0,
+              ),
             ),
           ],
         ),

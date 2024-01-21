@@ -694,6 +694,7 @@ class _WrokoutsState extends State<Wrokouts> {
   PreferredSizeWidget createAppBar() {
     return AppBar(
       title: Text(getAppBarTitle(screenIndex)),
+      centerTitle: true,
     );
   }
 

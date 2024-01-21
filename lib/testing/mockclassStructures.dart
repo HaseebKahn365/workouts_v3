@@ -153,5 +153,13 @@ void initDEVLogs() {
         Image.asset('assets/images/stretch.png'),
       ],
     ),
+    ProjectRecord(
+      lastUpdated: DateTime(2021, 1, 18),
+      images: [
+        Image.asset('assets/images/google.png'),
+        Image.asset('assets/images/login.png'),
+        Image.asset('assets/images/stretch.png'),
+      ],
+    ),
   ];
 }
