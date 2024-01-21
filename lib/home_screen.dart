@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:csv/csv.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.showNavBottomBar});
@@ -13,23 +16,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  @override
-  //read the contents of the categories.csv and activity.csv and store them as a List<String>
+  // Read the contents of the categories.csv and activity.csv and store them as a List<String>
   List<dynamic> categories = [];
   List<dynamic> activities = [];
-  //load csv
-  void _loadCSV() async {
-    final myData = await rootBundle.loadString('assets/csv_storage/categories.csv');
-    final activitiesCSV = await rootBundle.loadString('assets/csv_storage/activity.csv');
-    setState(() {
-      categories = CsvToListConverter().convert(myData);
-      activities = CsvToListConverter().convert(activitiesCSV);
-      print(categories);
-    });
+
+  // Load CSV when the widget is initialized
+  @override
+  void initState() {
+    super.initState();
   }
 
   Widget build(BuildContext context) {
-    _loadCSV();
     return Expanded(
       child: Align(
         alignment: Alignment.topCenter,
