@@ -17,6 +17,8 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   TextEditingController _controller = TextEditingController();
+  TextEditingController _Tagcontroller = TextEditingController();
+  List<String> tags = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,29 +219,97 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                     builder: (BuildContext context) {
                                       return AlertDialog(
                                         title: Text("Add Count"),
-                                        content: TextField(
-                                          controller: _controller,
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter.digitsOnly,
-                                            TextInputFormatter.withFunction((oldValue, newValue) {
-                                              if (newValue.text.isEmpty) {
-                                                return newValue;
-                                              }
+                                        content: StatefulBuilder(
+                                          builder: (BuildContext context, StateSetter setState) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextField(
+                                                  controller: _controller,
+                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter.digitsOnly,
+                                                    TextInputFormatter.withFunction((oldValue, newValue) {
+                                                      if (newValue.text.isEmpty) {
+                                                        return newValue;
+                                                      }
 
-                                              try {
-                                                final int value = int.parse(newValue.text);
-                                                return value > 0 && value <= 5000 ? newValue : oldValue;
-                                              } catch (e) {
-                                                return oldValue;
-                                              }
-                                            }),
-                                          ],
-                                          decoration: InputDecoration(
-                                            hintText: "Enter the count",
-                                          ),
-                                          onChanged: (value) {
-                                            // You can perform additional actions here if needed
+                                                      try {
+                                                        final int value = int.parse(newValue.text);
+                                                        return value > 0 && value <= 5000 ? newValue : oldValue;
+                                                      } catch (e) {
+                                                        return oldValue;
+                                                      }
+                                                    }),
+                                                  ],
+                                                  decoration: InputDecoration(
+                                                    //make sure to use overflow ellipses and also +activityname
+
+                                                    labelText: 'Enter Count for ' + activity.name,
+                                                  ),
+                                                  onChanged: (value) {
+                                                    // You can perform additional actions here if needed
+                                                  },
+                                                ),
+
+                                                //use a single child scrollview to display the tags
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                SingleChildScrollView(
+                                                  scrollDirection: Axis.horizontal,
+                                                  child: Row(
+                                                    children: [
+                                                      for (int i = tags.length - 1; i >= 0; i--)
+                                                        Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                                          child: Chip(
+                                                            label: Text(tags[i]),
+                                                            onDeleted: () {
+                                                              setState(() {
+                                                                tags.removeAt(i);
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                //tag controller
+
+                                                Padding(
+                                                  padding: const EdgeInsets.symmetric(vertical: 20),
+                                                  child: TextField(
+                                                    controller: _Tagcontroller,
+                                                    decoration: InputDecoration(
+                                                      border: OutlineInputBorder(),
+                                                      labelText: 'Add Tags',
+                                                      suffixIcon: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: OutlinedButton(
+                                                          onPressed: () {
+                                                            if (_Tagcontroller.text.isNotEmpty) {
+                                                              setState(() {
+                                                                tags.add(_Tagcontroller.text);
+                                                                _Tagcontroller.text = "";
+                                                              });
+                                                            }
+                                                          },
+                                                          style: OutlinedButton.styleFrom(
+                                                            foregroundColor: Theme.of(context).colorScheme.primary,
+                                                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                                            minimumSize: Size(0, 0),
+                                                          ),
+                                                          child: Icon(Icons.add),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
                                           },
                                         ),
                                         actions: [
@@ -255,14 +325,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                               int? count = int.tryParse(_controller.text);
 
                                               if (count != null && count > 0 && count <= 5000) {
-                                                // Do something with the valid count value
                                                 print('Valid count: $count');
-                                                //reset the controller text
                                               } else {
-                                                // Handle invalid input
                                                 print('Invalid input');
                                               }
                                               _controller.text = "";
+                                              //clear the tags controller
+                                              _Tagcontroller.text = "";
+                                              //empty the tag list
+                                              tags = [];
 
                                               Navigator.pop(context);
                                             },
@@ -281,7 +352,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                                     child: Text(
-                                      (widget.category.isCountBased == true) ? "Add Count" : "Add Time",
+                                      (widget.category.isCountBased == true) ? "Add Count " : "Add Time",
                                     ),
                                   ),
                                 ],
