@@ -12,9 +12,9 @@ class Stats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color selectedColor = Theme.of(context).primaryColor;
-    ThemeData lightTheme = ThemeData(colorSchemeSeed: selectedColor, brightness: Brightness.light);
-    ThemeData darkTheme = ThemeData(colorSchemeSeed: selectedColor, brightness: Brightness.dark);
+    // Color selectedColor = Theme.of(context).primaryColor;
+    // ThemeData lightTheme = ThemeData(colorSchemeSeed: selectedColor, brightness: Brightness.light);
+    // ThemeData darkTheme = ThemeData(colorSchemeSeed: selectedColor, brightness: Brightness.dark);
 
     return Expanded(
         child: ListView(

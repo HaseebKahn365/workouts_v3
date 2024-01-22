@@ -1,11 +1,9 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors
 
-import 'dart:io';
-
-import 'package:csv/csv.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:workouts_v3/screens/category.dart';
+import 'package:workouts_v3/screens/devlog.dart';
 import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,9 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    initDEVLogs();
   }
 
-  bool radioSelection = false;
+  int selectedOption = 1;
 
   Widget build(BuildContext context) {
     return Expanded(
@@ -47,60 +46,88 @@ class _HomeScreenState extends State<HomeScreen> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Create Category"),
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextField(
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.all(5.0),
-                                  border: OutlineInputBorder(),
-                                  labelText: 'Category Name',
-                                ),
+                        return StatefulBuilder(
+                          builder: (context, setState) => AlertDialog(
+                            backgroundColor: Theme.of(context).colorScheme.surface,
+                            title: Center(
+                                child: const Text(
+                              "Create Category",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w300,
                               ),
-                              //create two radio buttons for the type of category
-                              Column(
-                                children: [
-                                  Radio(
-                                    value: false,
-                                    groupValue: radioSelection,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        radioSelection = value as bool;
-                                      });
-                                    },
+                            )),
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  //center the text field
+                                  textAlign: TextAlign.center,
+
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.all(15.0),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    labelText: 'Category Name',
                                   ),
-                                  const Text("Count Based"),
-                                  Radio(
-                                    value: true,
-                                    groupValue: radioSelection,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        radioSelection = value as bool;
-                                      });
-                                    },
-                                  ),
-                                  const Text("Time Based"),
-                                ],
+                                ),
+                                //radio buttons for selecting the type of the category
+                                const SizedBox(
+                                  height: 10,
+                                ),
+
+                                Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Radio(
+                                          value: 2,
+                                          groupValue: selectedOption,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedOption = value as int;
+                                            });
+                                          },
+                                        ),
+                                        const Text("Count Based (number)"),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Radio(
+                                          value: 1,
+                                          groupValue: selectedOption,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedOption = value as int;
+                                            });
+                                          },
+                                        ),
+                                        const Text("Time Based (mins)"),
+                                      ],
+                                    ),
+
+                                    // Add more Radio widgets as needed
+                                  ],
+                                )
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Create"),
                               ),
                             ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Cancel"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Create"),
-                            ),
-                          ],
                         );
                       },
                     );
@@ -121,7 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
                       trailing: Text(category.activityList.length.toString()),
                       onTap: () {
-                        // Navigator.pushNamed(context, '/category', arguments: category);
+                        //use material route to navigate to the activity screen
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
                       },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
@@ -140,9 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListTile(
                   title: Text("DEVLogs"),
                   subtitle: Text("View the logs for all the apps"),
-                  trailing: Text("0"),
+                  trailing: Text("${devLogs.getProjectCount()} Projects"),
                   onTap: () {
-                    // Navigator.pushNamed(context, '/category', arguments: category);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
                   },
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -163,155 +191,6 @@ const _rowDivider = SizedBox(width: 10);
 const _colDivider = SizedBox(height: 10);
 const double _cardWidth = 115;
 const double _maxWidthConstraint = 400;
-
-void Function()? handlePressed(BuildContext context, bool isDisabled, String buttonName) {
-  return isDisabled
-      ? null
-      : () {
-          final snackBar = SnackBar(
-            content: Text(
-              'Yay! $buttonName is clicked!',
-              style: TextStyle(color: Theme.of(context).colorScheme.surface),
-            ),
-            action: SnackBarAction(
-              textColor: Theme.of(context).colorScheme.surface,
-              label: 'Close',
-              onPressed: () {},
-            ),
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        };
-}
-
-class Buttons extends StatefulWidget {
-  const Buttons({super.key});
-
-  @override
-  State<Buttons> createState() => _ButtonsState();
-}
-
-class _ButtonsState extends State<Buttons> {
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.spaceEvenly,
-      children: const <Widget>[
-        ButtonsWithoutIcon(isDisabled: false),
-        _rowDivider,
-        ButtonsWithIcon(),
-        _rowDivider,
-        ButtonsWithoutIcon(isDisabled: true),
-      ],
-    );
-  }
-}
-
-class ButtonsWithoutIcon extends StatelessWidget {
-  final bool isDisabled;
-
-  const ButtonsWithoutIcon({super.key, required this.isDisabled});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicWidth(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ElevatedButton(
-            onPressed: handlePressed(context, isDisabled, "ElevatedButton"),
-            child: const Text("Elevated"),
-          ),
-          _colDivider,
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              // Foreground color
-              onPrimary: Theme.of(context).colorScheme.onPrimary,
-              // Background color
-              primary: Theme.of(context).colorScheme.primary,
-            ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
-            onPressed: handlePressed(context, isDisabled, "FilledButton"),
-            child: const Text('Filled'),
-          ),
-          _colDivider,
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              // Foreground color
-              onPrimary: Theme.of(context).colorScheme.onSecondaryContainer,
-              // Background color
-              primary: Theme.of(context).colorScheme.secondaryContainer,
-            ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
-            onPressed: handlePressed(context, isDisabled, "FilledTonalButton"),
-            child: const Text('Filled Tonal'),
-          ),
-          _colDivider,
-          OutlinedButton(
-            onPressed: handlePressed(context, isDisabled, "OutlinedButton"),
-            child: const Text("Outlined"),
-          ),
-          _colDivider,
-          TextButton(onPressed: handlePressed(context, isDisabled, "TextButton"), child: const Text("Text")),
-        ],
-      ),
-    );
-  }
-}
-
-class ButtonsWithIcon extends StatelessWidget {
-  const ButtonsWithIcon({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicWidth(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ElevatedButton.icon(
-            onPressed: handlePressed(context, false, "ElevatedButton with Icon"),
-            icon: const Icon(Icons.add),
-            label: const Text("Icon"),
-          ),
-          _colDivider,
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              // Foreground color
-              onPrimary: Theme.of(context).colorScheme.onPrimary,
-              // Background color
-              primary: Theme.of(context).colorScheme.primary,
-            ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
-            onPressed: handlePressed(context, false, "FilledButton with Icon"),
-            label: const Text('Icon'),
-            icon: const Icon(Icons.add),
-          ),
-          _colDivider,
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              // Foreground color
-              onPrimary: Theme.of(context).colorScheme.onSecondaryContainer,
-              // Background color
-              primary: Theme.of(context).colorScheme.secondaryContainer,
-            ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
-            onPressed: handlePressed(context, false, "FilledTonalButton with Icon"),
-            label: const Text('Icon'),
-            icon: const Icon(Icons.add),
-          ),
-          _colDivider,
-          OutlinedButton.icon(
-            onPressed: handlePressed(context, false, "OutlinedButton with Icon"),
-            icon: const Icon(Icons.add),
-            label: const Text("Icon"),
-          ),
-          _colDivider,
-          TextButton.icon(
-            onPressed: handlePressed(context, false, "TextButton with Icon"),
-            icon: const Icon(Icons.add),
-            label: const Text("Icon"),
-          )
-        ],
-      ),
-    );
-  }
-}
 
 class FloatingActionButtons extends StatelessWidget {
   const FloatingActionButtons({super.key});

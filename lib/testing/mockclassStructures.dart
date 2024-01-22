@@ -42,6 +42,20 @@ class Project {
   int getLogCount() {
     return logs.length;
   }
+
+  //last update
+  DateTime? getLastUpdated() {
+    if (logs.length == 0) {
+      return null;
+    }
+    if (logs.length == 1) return logs[0].lastUpdated;
+    for (int i = 0; i < logs.length; i++) {
+      if (logs[i].lastUpdated.isAfter(logs[i + 1].lastUpdated)) {
+        return logs[i].lastUpdated;
+      }
+    }
+    return null;
+  }
 }
 
 class ProjectRecord {
@@ -65,7 +79,25 @@ List<Category> categories = [
     createdOn: DateTime(2021, 1, 20),
     activityList: [
       Activity(
-        name: 'Reading',
+        name: 'Science',
+        tags: ['Books'],
+        createdOn: DateTime(2021, 1, 20),
+        countMap: {
+          DateTime(2021, 1, 20, 20, 0): 60,
+          DateTime(2021, 1, 20, 21, 0): 45,
+        },
+      ),
+      Activity(
+        name: 'math',
+        tags: ['Books'],
+        createdOn: DateTime(2021, 1, 20),
+        countMap: {
+          DateTime(2021, 1, 20, 20, 0): 60,
+          DateTime(2021, 1, 20, 21, 0): 45,
+        },
+      ),
+      Activity(
+        name: 'Programming',
         tags: ['Books'],
         createdOn: DateTime(2021, 1, 20),
         countMap: {
@@ -132,15 +164,15 @@ DEVLogs devLogs = DEVLogs();
 void initDEVLogs() {
   devLogs.projects = [
     Project(
-      name: 'Project 1',
+      name: 'Cellz 1',
       createdOn: DateTime(2021, 1, 20),
     ),
     Project(
-      name: 'Project 2',
+      name: 'Material 3',
       createdOn: DateTime(2021, 1, 20),
     ),
     Project(
-      name: 'Project 3',
+      name: 'Tracker 3',
       createdOn: DateTime(2021, 1, 20),
     ),
   ];
