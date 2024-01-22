@@ -7,8 +7,8 @@ const Widget divider = SizedBox(height: 10);
 // be displayed in a row.
 const double narrowScreenWidthThreshold = 400;
 
-class Stats extends StatelessWidget {
-  const Stats({super.key});
+class Today extends StatelessWidget {
+  const Today({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +18,7 @@ class Stats extends StatelessWidget {
 
     return Expanded(
         child: ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
         Text('data'),
       ],

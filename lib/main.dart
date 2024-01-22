@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workouts_v3/stats_screen.dart';
+import 'package:workouts_v3/today_screen.dart';
 import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
 import 'package:workouts_v3/typography_screen.dart';
@@ -102,9 +102,9 @@ class _WrokoutsState extends State<Wrokouts> {
       case 0:
         return "Home";
       case 1:
-        return "Stats";
+        return "Today";
       case 2:
-        return "Competition";
+        return "Overall";
 
       default:
         return "Home";
@@ -482,7 +482,7 @@ class _WrokoutsState extends State<Wrokouts> {
       case 0:
         return HomeScreen(showNavBottomBar: showNavBarExample);
       case 1:
-        return const Stats();
+        return const Today();
       case 2:
         return const Competition();
 

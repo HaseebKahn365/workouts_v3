@@ -229,94 +229,6 @@ class FloatingActionButtons extends StatelessWidget {
   }
 }
 
-class Cards extends StatelessWidget {
-  const Cards({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Wrap(
-        alignment: WrapAlignment.spaceEvenly,
-        children: [
-          SizedBox(
-            width: _cardWidth,
-            child: Card(
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: const [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: Icon(Icons.more_vert),
-                    ),
-                    SizedBox(height: 35),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text("Elevated"),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: _cardWidth,
-            child: Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              elevation: 0,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: const [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: Icon(Icons.more_vert),
-                    ),
-                    SizedBox(height: 35),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text("Filled"),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: _cardWidth,
-            child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: const [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: Icon(Icons.more_vert),
-                    ),
-                    SizedBox(height: 35),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text("Outlined"),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class Dialogs extends StatefulWidget {
   const Dialogs({super.key});
 
@@ -370,13 +282,13 @@ const List<NavigationDestination> appBarDestinations = [
   NavigationDestination(
     tooltip: "",
     icon: Icon(FluentIcons.book_coins_24_regular, size: 28),
-    label: 'Stats',
+    label: 'Today',
     selectedIcon: Icon(FluentIcons.book_coins_24_filled, size: 28),
   ),
   NavigationDestination(
     tooltip: "",
     icon: Icon(FluentIcons.people_28_regular),
-    label: 'Competition',
+    label: 'Overall',
     selectedIcon: Icon(FluentIcons.people_28_filled),
   ),
 ];
