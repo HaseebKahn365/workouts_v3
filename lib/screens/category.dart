@@ -245,7 +245,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                   decoration: InputDecoration(
                                                     //make sure to use overflow ellipses and also +activityname
 
-                                                    labelText: 'Enter Count for ' + activity.name,
+                                                    hintText: 'Enter Count for ' + activity.name,
                                                   ),
                                                   onChanged: (value) {
                                                     // You can perform additional actions here if needed

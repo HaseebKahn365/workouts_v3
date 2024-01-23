@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 const Widget divider = SizedBox(height: 10);
@@ -6,6 +7,15 @@ const Widget divider = SizedBox(height: 10);
 // color schemes will be displayed in a column. Otherwise, they will
 // be displayed in a row.
 const double narrowScreenWidthThreshold = 400;
+
+//create a list of DemoCategoryData objects
+List<DemoCategoryData> demoCategoryData = [
+  DemoCategoryData(name: 'Workout', count: 24),
+  DemoCategoryData(name: 'Coding', count: 12),
+  DemoCategoryData(name: 'Reading', count: 6),
+  DemoCategoryData(name: 'Meditation', count: 2),
+  DemoCategoryData(name: 'Programming', count: 24),
+];
 
 class Today extends StatefulWidget {
   const Today({super.key});
@@ -16,10 +26,10 @@ class Today extends StatefulWidget {
 
 class _TodayState extends State<Today> {
   List<ProgressObjects> progressObjects = [
-    ProgressObjects(name: 'Workout', progress: 24, probability: 0.6),
-    ProgressObjects(name: 'Coding', progress: 12, probability: 0.3),
-    ProgressObjects(name: 'Reading', progress: 6, probability: 0.1),
-    ProgressObjects(name: 'Meditation', progress: 2, probability: 0.05),
+    ProgressObjects(name: 'math', progress: 24, probability: 0.6),
+    ProgressObjects(name: 'science', progress: 12, probability: 0.3),
+    ProgressObjects(name: 'computer science', progress: 6, probability: 0.1),
+    ProgressObjects(name: 'homework', progress: 2, probability: 0.05),
   ];
 
   int getMaxProgress() {
@@ -97,7 +107,6 @@ class _TodayState extends State<Today> {
                       ),
 
                       LinearProgressIndicator(
-                        //make it rounded
                         borderRadius: BorderRadius.circular(10),
                         value: progressObject.probability,
                         minHeight: 10,
@@ -108,11 +117,45 @@ class _TodayState extends State<Today> {
                   ),
                 ),
               ),
+
+              // Here we will have a pie chart to display the contribution to each category. ie. DemoCategoryData list
             ],
           );
         }),
+        PiechartWidget(demoCategoryData: demoCategoryData),
       ],
     ));
+  }
+}
+
+class PiechartWidget extends StatelessWidget {
+  final List<DemoCategoryData> demoCategoryData;
+  const PiechartWidget({super.key, required this.demoCategoryData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 350,
+        width: 200,
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
+        child: PieChart(
+          PieChartData(
+            sections: demoCategoryData.map((demoCategoryData) {
+              return PieChartSectionData(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                value: demoCategoryData.count.toDouble(),
+                title: demoCategoryData.name,
+                radius: 100,
+                titleStyle: TextStyle(
+                  fontSize: 10, // Adjust the font size as needed
+                  color: Theme.of(context).colorScheme.primary, // Customize the color
+                ),
+              );
+            }).toList(),
+            sectionsSpace: 0.5, // You can adjust the space between sections
+            centerSpaceRadius: 50, // Adjust the size of the center space
+          ),
+        ));
   }
 }
 
@@ -132,4 +175,11 @@ class ProgressObjects {
   double probability;
 
   ProgressObjects({required this.name, required this.progress, required this.probability});
+}
+
+class DemoCategoryData {
+  final String name;
+  final int count;
+
+  const DemoCategoryData({required this.name, required this.count});
 }
