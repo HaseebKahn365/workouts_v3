@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 const Widget divider = SizedBox(height: 10);
 
@@ -63,7 +64,10 @@ class _TodayState extends State<Today> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       children: [
         const SizedBox(height: 16),
-        Text(' Today\'s Activities ', style: Theme.of(context).textTheme.headlineMedium),
+        Text(' Today\'s Activities ', style: Theme.of(context).textTheme.headlineMedium).animate().scale(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            ),
 
         //here we will use the spread operator on the list of progress objects
         //to create a list of widgets
@@ -116,7 +120,10 @@ class _TodayState extends State<Today> {
                     ],
                   ),
                 ),
-              ),
+              ).animate().slide(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  ),
 
               // Here we will have a pie chart to display the contribution to each category. ie. DemoCategoryData list
             ],

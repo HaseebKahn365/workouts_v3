@@ -2,6 +2,7 @@
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:workouts_v3/screens/category.dart';
 import 'package:workouts_v3/screens/devlog.dart';
 import 'package:workouts_v3/testing/mockclassStructures.dart';
@@ -136,29 +137,50 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: const Text("Add Category"),
                 ),
               ),
-            ),
+            )
+                .animate()
+                .scale(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                )
+                .then()
+                .shake(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  hz: 2,
+                ),
 
             //creating a card for each category using expand operator for the list
-            ...categories.map((category) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
-                  child: Card(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    child: ListTile(
-                      title: Text(category.name),
-                      subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
-                      trailing: Text(category.activityList.length.toString()),
-                      onTap: () {
-                        //use material route to navigate to the activity screen
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      splashColor: Theme.of(context).colorScheme.secondaryContainer,
+            ...categories.map(
+              (category) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+                child: Card(
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: ListTile(
+                    title: Text(category.name),
+                    subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
+                    trailing: Text(category.activityList.length.toString()),
+                    onTap: () {
+                      //use material route to navigate to the activity screen
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                    elevation: 0,
+                    splashColor: Theme.of(context).colorScheme.secondaryContainer,
                   ),
-                )),
+                  elevation: 0,
+                )
+                    .animate()
+                    .slideY(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      begin: 1,
+                    )
+                    .then()
+                    .shimmer(),
+              ),
+            ),
 
             //card for the DEVLogs
             Padding(
@@ -178,7 +200,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   splashColor: Theme.of(context).colorScheme.secondaryContainer,
                 ),
                 elevation: 0,
-              ),
+              )
+                  .animate()
+                  .slideY(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                    begin: 1,
+                  )
+                  .then()
+                  .shimmer(),
             ),
           ],
         ),
@@ -224,49 +254,6 @@ class FloatingActionButtons extends StatelessWidget {
             child: const Icon(Icons.add),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class Dialogs extends StatefulWidget {
-  const Dialogs({super.key});
-
-  @override
-  State<Dialogs> createState() => _DialogsState();
-}
-
-class _DialogsState extends State<Dialogs> {
-  void openDialog(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Basic Dialog Title"),
-        content: const Text("A dialog is a type of modal window that appears in front of app content to provide critical information, or prompt for a decision to be made."),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Dismiss'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: const Text('Action'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextButton(
-        child: const Text(
-          "Open Dialog",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        onPressed: () => openDialog(context),
       ),
     );
   }

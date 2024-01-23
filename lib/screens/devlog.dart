@@ -4,6 +4,7 @@
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class DEVLogScreen extends StatefulWidget {
@@ -94,7 +95,10 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                       icon: const Icon(Icons.add),
                       label: const Text("Add Project"),
                     ),
-                  ),
+                  ).animate().scale(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      ),
                 ), //end of the project creation button
 
                 //display all the projects here using cards
@@ -261,7 +265,10 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                         ),
                       ),
                       elevation: 0,
-                    ),
+                    ).animate().scale(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        ),
                   );
                 }).toList(),
               ],

@@ -5,6 +5,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -38,67 +39,71 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     width: 100, // Set the width of the Container
                     alignment: Alignment.center, // Center the button within the Container
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        //an alert dialogye box asking for the type and name of the category.
-                        //the name is taken using text field and the type is taken using radio buttons
+                            onPressed: () {
+                              //an alert dialogye box asking for the type and name of the category.
+                              //the name is taken using text field and the type is taken using radio buttons
 
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                              builder: (context, setState) => AlertDialog(
-                                backgroundColor: Theme.of(context).colorScheme.surface,
-                                title: Center(
-                                    child: const Text(
-                                  "Create Activity",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                )),
-                                content: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextField(
-                                      //center the text field
-                                      textAlign: TextAlign.center,
-
-                                      decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.all(15.0),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0),
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return StatefulBuilder(
+                                    builder: (context, setState) => AlertDialog(
+                                      backgroundColor: Theme.of(context).colorScheme.surface,
+                                      title: Center(
+                                          child: const Text(
+                                        "Create Activity",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w300,
                                         ),
-                                        labelText: 'Activity Name',
+                                      )),
+                                      content: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextField(
+                                            //center the text field
+                                            textAlign: TextAlign.center,
+
+                                            decoration: InputDecoration(
+                                              contentPadding: const EdgeInsets.all(15.0),
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(30.0),
+                                              ),
+                                              labelText: 'Activity Name',
+                                            ),
+                                          ),
+                                          //radio buttons for selecting the type of the category
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                        ],
                                       ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text("Create"),
+                                        ),
+                                      ],
                                     ),
-                                    //radio buttons for selecting the type of the category
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Cancel"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Create"),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text("Add Activity"),
-                    ),
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.add),
+                            label: Text("Add Activity"))
+                        .animate()
+                        .scale(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        ),
                   ),
                 ),
                 //end of adding activity
@@ -385,7 +390,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           ], //end of the entire coontainer widget
                         ),
                         elevation: 0,
-                      ),
+                      ).animate().scale(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          ),
                     );
                   }),
               ],
