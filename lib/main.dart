@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workouts_v3/today_screen.dart';
 import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
-import 'package:workouts_v3/typography_screen.dart';
+import 'package:workouts_v3/overall_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -484,7 +484,7 @@ class _WrokoutsState extends State<Wrokouts> {
       case 1:
         return const Today();
       case 2:
-        return const Competition();
+        return const Overall();
 
       default:
         return HomeScreen(showNavBottomBar: showNavBarExample);
