@@ -3,9 +3,10 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/screens/category.dart';
 import 'package:workouts_v3/screens/devlog.dart';
-import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.showNavBottomBar});
@@ -20,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    initDEVLogs();
   }
 
   int selectedOption = 1;
@@ -151,36 +151,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
             //creating a card for each category using expand operator for the list
-            ...categories.map(
-              (category) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
-                child: Card(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  child: ListTile(
-                    title: Text(category.name),
-                    subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
-                    trailing: Text(category.activityList.length.toString()),
-                    onTap: () {
-                      //use material route to navigate to the activity screen
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    splashColor: Theme.of(context).colorScheme.secondaryContainer,
-                  ),
-                  elevation: 0,
-                )
-                    .animate()
-                    .slideY(
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                      begin: 1,
+            ...Provider.of<Parent>(context).categoryList.map(
+                  (category) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+                    child: Card(
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      child: ListTile(
+                        title: Text(category.name),
+                        subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
+                        trailing: Text(category.activityList.length.toString()),
+                        onTap: () {
+                          //use material route to navigate to the activity screen
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        splashColor: Theme.of(context).colorScheme.secondaryContainer,
+                      ),
+                      elevation: 0,
                     )
-                    .then()
-                    .shimmer(),
-              ),
-            ),
+                        .animate()
+                        .slideY(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          begin: 1,
+                        )
+                        .then()
+                        .shimmer(),
+                  ),
+                ),
 
             //card for the DEVLogs
             Padding(
@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListTile(
                   title: Text("DEVLogs"),
                   subtitle: Text("View the logs for all the apps"),
-                  trailing: Text("${devLogs.getProjectCount()} Projects"),
+                  trailing: Text("${Provider.of<DEVLogs>(context, listen: true).projectList.length} Projects"),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
                   },

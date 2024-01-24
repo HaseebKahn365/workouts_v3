@@ -1,5 +1,183 @@
 //This is the material 3 demo app but we are now gonna modify it to make it a workouts app.
 //First we chech if the user exists using firestore and if not then take the user to startup screen.
+/*
+/*
+State Management with Provider.
+Provider package is chosen for state management. The following methods and members show the updated data structures and business logic with state management implemented. 
+Parent: 
+This is a newly introduced class that will contain a list of categories and addToCategoryList() method. It will also contain an instance of DEVLogs. There will only be one instance of the parent class. It will provide all the state to the entire application form the main function. The .toString method should also be overloaded for this class to observe the number of items in the list of categories. Following tables show all the hierarchy of the classes and methods and data members inside each class.
+Parent:
+List<Category> categoryList;
+addToCategoryList(); //with notifyListeners();
+.toString //overloaded
+
+Category:
+Bool isCountBased;
+String name;
+String ActivityConnectUID;
+DateTime createdOn;
+List<Activities> activityList;
+addToActivityList(); //with notifyListeners();
+.toString //overloaded
+
+Activity:
+String name;
+DateTime createdOn;
+List<String> tags;
+DateTime lastUpdated;
+Map<DateTime, Value> countMap;
+addToCountMap(); //with notifyListeners();
+.toString //overloaded
+
+DEVLogs:
+List<Project> projectList;
+addToProjectList(); //with notifyListeners();
+.toString //overloaded
+
+Project:
+String name;
+DateTime createdOn;
+Future<bool> uploadToFirestore(); 
+List<ProjectRecord> projectRecordList;
+addToProjectRecordList(); //with notifyListeners();
+
+ProjectRecord:
+List<Image> images;
+DateTime createdOn;
+String description;
+.toString //overloaded
+
+
+ */
+
+import 'package:flutter/material.dart';
+
+//lets implement all the classes along with their constructors and methods
+
+class Parent extends ChangeNotifier {
+  List<Category> categoryList = [];
+  DEVLogs devLogs = DEVLogs();
+
+  Parent() {
+    print('Parent constructor called');
+  }
+
+  void addToCategoryList(Category category) {
+    categoryList.add(category);
+    notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return 'Parent: ${categoryList.length} \n ${devLogs.toString()}';
+  }
+}
+
+class Category extends ChangeNotifier {
+  bool isCountBased;
+  String name;
+  String ActivityConnectUID;
+  DateTime createdOn;
+  List<Activity> activityList = [];
+
+  Category({
+    required this.isCountBased,
+    required this.name,
+    required this.ActivityConnectUID,
+    required this.createdOn,
+  });
+
+  void addToActivityList(Activity activity) {
+    activityList.add(activity);
+    notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return 'Category: $name \n ${activityList.length} activities';
+  }
+}
+
+class Activity extends ChangeNotifier {
+  String name;
+  DateTime createdOn;
+  List<String> tags = [];
+  DateTime lastUpdated;
+  Map<DateTime, int> countMap = {};
+
+  Activity({
+    required this.name,
+    required this.createdOn,
+    required this.lastUpdated,
+  });
+
+  void addToCountMap(int value, DateTime date) {
+    countMap[date] = value;
+
+    notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return 'Activity: $name';
+  }
+}
+
+class DEVLogs extends ChangeNotifier {
+  List<Project> projectList = [];
+
+  void addToProjectList(Project project) {
+    projectList.add(project);
+    notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return 'DEVLogs: ${projectList.length} projects';
+  }
+}
+
+class Project extends ChangeNotifier {
+  String name;
+  DateTime createdOn;
+  Future<bool> uploadToFirestore() async {
+    return true;
+  }
+
+  Project({
+    required this.name,
+    required this.createdOn,
+  });
+
+  List<ProjectRecord> projectRecordList = [];
+
+  void addToProjectRecordList(ProjectRecord projectRecord) {
+    projectRecordList.add(projectRecord);
+    notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return 'Project: $name, ${projectRecordList.length} records';
+  }
+}
+
+class ProjectRecord extends ChangeNotifier {
+  List<Image> images = [];
+  DateTime createdOn;
+  String description;
+
+  ProjectRecord({
+    required this.createdOn,
+    required this.description,
+  });
+
+  @override
+  String toString() {
+    return 'ProjectRecord: $description \n ${images.length} images';
+  }
+}
+ */
 
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
@@ -9,7 +187,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/today_screen.dart';
 import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
@@ -18,7 +198,20 @@ import 'package:workouts_v3/overall_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const Wrokouts());
+  //wrapping the first widget with MultiProvider for all the classes
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => Parent()),
+        ChangeNotifierProvider(create: (context) => DEVLogs()),
+        ChangeNotifierProvider(create: (context) => Project(name: 'Project 1', createdOn: DateTime.now())),
+        ChangeNotifierProvider(create: (context) => ProjectRecord(createdOn: DateTime.now(), description: 'Project Record 1')),
+        ChangeNotifierProvider(create: (context) => Category(isCountBased: true, name: 'Category 1', ActivityConnectUID: '123', createdOn: DateTime.now())),
+        ChangeNotifierProvider(create: (context) => Activity(name: 'Activity 1', createdOn: DateTime.now(), lastUpdated: DateTime.now())),
+      ],
+      child: const Wrokouts(),
+    ),
+  );
 }
 
 class Wrokouts extends StatefulWidget {

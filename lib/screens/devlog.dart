@@ -5,6 +5,8 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class DEVLogScreen extends StatefulWidget {
@@ -104,7 +106,7 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                 //display all the projects here using cards
                 //each card will have a title, date, and a button to add a new log
 
-                ...devLogs.projects.map((project) {
+                ...Provider.of<DEVLogs>(context, listen: true).projectList.map((project) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 15.0, right: 15.0, left: 15.0),
                     child: Card(
@@ -160,7 +162,7 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                                         Navigator.pushNamed(context, '/project', arguments: project);
                                       },
                                       child: Text(
-                                        "Logs " + project.logs.length.toString(),
+                                        "Logs " + project.projectRecordList.length.toString(),
                                       ),
                                     ),
                                   ],

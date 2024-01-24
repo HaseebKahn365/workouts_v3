@@ -6,6 +6,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class CategoryScreen extends StatefulWidget {
