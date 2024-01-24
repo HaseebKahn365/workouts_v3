@@ -47,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
+                        TextEditingController _textFieldController = TextEditingController();
                         return StatefulBuilder(
                           builder: (context, setState) => AlertDialog(
                             backgroundColor: Theme.of(context).colorScheme.surface,
@@ -64,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextField(
                                   //center the text field
                                   textAlign: TextAlign.center,
+                                  controller: _textFieldController,
 
                                   decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.all(15.0),
@@ -108,21 +110,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                         const Text("Time Based (mins)"),
                                       ],
                                     ),
-
-                                    // Add more Radio widgets as needed
                                   ],
                                 )
                               ],
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
+                                onPressed: () {},
                                 child: const Text("Cancel"),
                               ),
                               TextButton(
                                 onPressed: () {
+                                  //create a Category Object and add it to the list
+                                  final categryItem = Category(
+                                    isCountBased: selectedOption == 1 ? false : true,
+                                    name: _textFieldController.text,
+                                    ActivityConnectUID: "C${Provider.of<Parent>(context, listen: false).categoryList.length + 1}",
+                                    createdOn: DateTime.now(),
+                                  );
+
+                                  Provider.of<Parent>(context, listen: false).addToCategoryList(categryItem);
+                                  print(Provider.of<Parent>(context, listen: false).toString());
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text("Create"),

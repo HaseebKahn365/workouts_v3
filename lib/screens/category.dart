@@ -6,8 +6,8 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
-import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class CategoryScreen extends StatefulWidget {
   final Category category;
@@ -47,12 +47,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
+                                  TextEditingController _controller = TextEditingController();
                                   return StatefulBuilder(
                                     builder: (context, setState) => AlertDialog(
                                       backgroundColor: Theme.of(context).colorScheme.surface,
                                       title: Center(
-                                          child: const Text(
-                                        "Create Activity",
+                                          child: Text(
+                                        "Create Activity " + (widget.category.isCountBased ? "\n (Count based)" : "\n (Time based)"),
                                         style: TextStyle(
                                           fontWeight: FontWeight.w300,
                                         ),
@@ -62,6 +63,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           TextField(
+                                            controller: _controller,
                                             //center the text field
                                             textAlign: TextAlign.center,
 
@@ -88,6 +90,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                         ),
                                         TextButton(
                                           onPressed: () {
+                                            //add the activity to the activity list
+                                            //we are using without the provider because of the stateful widget. we are going to test it.
+                                            Activity activity = Activity(
+                                              name: _controller.text,
+                                              createdOn: DateTime.now(),
+                                              lastUpdated: DateTime.now(),
+                                            );
+
+                                            Provider.of<Category>(context, listen: false).addToActivityList(activity);
+                                            print(activity.toString());
+
                                             Navigator.of(context).pop();
                                           },
                                           child: const Text("Create"),

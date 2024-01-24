@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
-import 'package:workouts_v3/testing/mockclassStructures.dart';
 
 class DEVLogScreen extends StatefulWidget {
   const DEVLogScreen({super.key});
@@ -43,6 +42,7 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
+                            TextEditingController _textFieldController = TextEditingController();
                             return StatefulBuilder(
                               builder: (context, setState) => AlertDialog(
                                 backgroundColor: Theme.of(context).colorScheme.surface,
@@ -60,6 +60,7 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                                     TextField(
                                       //center the text field
                                       textAlign: TextAlign.center,
+                                      controller: _textFieldController,
 
                                       decoration: InputDecoration(
                                         contentPadding: const EdgeInsets.all(15.0),
@@ -84,6 +85,13 @@ class _DEVLogScreenState extends State<DEVLogScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () {
+                                      //create a new Project object and add it to the project list using provider
+                                      Provider.of<DEVLogs>(context, listen: false).addToProjectList(
+                                        Project(
+                                          name: _textFieldController.text,
+                                          createdOn: DateTime.now(),
+                                        ),
+                                      );
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text("Create"),
