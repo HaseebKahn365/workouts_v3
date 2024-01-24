@@ -167,7 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ListTile(
                         title: Text(category.name),
                         subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
-                        trailing: Text(category.activityList.length.toString()),
+                        trailing: Text(
+                          //category.activityList.length.toString()
+                          Provider.of<Parent>(context, listen: true).categoryList.firstWhere((element) => element == category).activityList.length.toString(),
+                        ),
                         onTap: () {
                           //use material route to navigate to the activity screen
                           Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));

@@ -84,6 +84,15 @@ class Category extends ChangeNotifier {
     required this.createdOn,
   });
 
+  //overload the == operator to compare two categories on the bases of name and createdOn
+  bool operator ==(Object other) {
+    if (other is Category) {
+      return (this.name == other.name && this.createdOn == other.createdOn);
+    } else {
+      return false;
+    }
+  }
+
   void addToActivityList(Activity activity) {
     activityList.add(activity);
     notifyListeners();

@@ -18,11 +18,14 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
+  //we first find the recieved category through the constructor in the list of Categories of the Parent instance using provider
+
   TextEditingController _controller = TextEditingController();
   TextEditingController _Tagcontroller = TextEditingController();
   List<String> tags = [];
   @override
   Widget build(BuildContext context) {
+    Category currentCategory = Provider.of<Parent>(context, listen: false).categoryList.firstWhere((element) => element == widget.category);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -98,7 +101,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                               lastUpdated: DateTime.now(),
                                             );
 
-                                            Provider.of<Category>(context, listen: false).addToActivityList(activity);
+                                            //match the category with the current category using provider then add to its list of activities
+                                            Provider.of<Parent>(context, listen: false).categoryList.firstWhere((element) => element == widget.category).addToActivityList(activity);
+                                            print('Tried adding activity');
                                             print(activity.toString());
 
                                             Navigator.of(context).pop();
@@ -122,10 +127,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 ),
                 //end of adding activity
 
-                if (widget.category.activityList.isEmpty)
+                if (currentCategory.activityList.isEmpty)
                   Text("No activities found")
                 else
-                  ...widget.category.activityList.map((activity) {
+                  ...Provider.of<Parent>(context, listen: false).categoryList.firstWhere((element) => element == widget.category).activityList.map((activity) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 13.0, right: 13.0, top: 4.0, bottom: 4.0),
                       child: Card(
