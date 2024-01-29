@@ -185,11 +185,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/today_screen.dart';
 import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
@@ -200,15 +199,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   //wrapping the first widget with MultiProvider for all the classes
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => Parent()),
-        ChangeNotifierProvider(create: (context) => DEVLogs()),
-        ChangeNotifierProvider(create: (context) => Project(name: 'Project 1', createdOn: DateTime.now())),
-        ChangeNotifierProvider(create: (context) => ProjectRecord(createdOn: DateTime.now(), description: 'Project Record 1')),
-        ChangeNotifierProvider(create: (context) => Category(isCountBased: true, name: 'Category 1', ActivityConnectUID: '123', createdOn: DateTime.now())),
-        ChangeNotifierProvider(create: (context) => Activity(name: 'Activity 1', createdOn: DateTime.now(), lastUpdated: DateTime.now())),
-      ],
+    ProviderScope(
       child: const Wrokouts(),
     ),
   );

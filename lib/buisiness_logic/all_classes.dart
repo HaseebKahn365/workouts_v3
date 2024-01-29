@@ -1,8 +1,8 @@
 /*
-State Management with Provider.
-Provider package is chosen for state management. The following methods and members show the updated data structures and business logic with state management implemented. 
-Parent: 
-This is a newly introduced class that will contain a list of categories and addToCategoryList() method. It will also contain an instance of DEVLogs. There will only be one instance of the parent class. It will provide all the state to the entire application form the main function. The .toString method should also be overloaded for this class to observe the number of items in the list of categories. Following tables show all the hierarchy of the classes and methods and data members inside each class.
+Migration to Riverpod
+We will use the same model classes designs that we have used but now we will use only one instance of the parent used as a provider for maintaining the overall state of the app rather than creating multiple instances of the model classes. We will use the notifyListeners in the methods that cause changes to the UI. We will extend all the classes from the ChangeNotifierProvider. Along with this, we will use the Consumer Stateful Widget in the UI so that we could reuse most of the existing code defined in the existing stateful widgets. 
+
+
 Parent:
 List<Category> categoryList;
 addToCategoryList(); //with notifyListeners();
