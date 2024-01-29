@@ -3,29 +3,34 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/screens/category.dart';
 import 'package:workouts_v3/screens/devlog.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.showNavBottomBar});
+//creating Instance of the Parent Class as changeNotifierprovider using riverpod
+
+final parentProvider = ChangeNotifierProvider((ref) => Parent());
+
+//creating instance of the DEVLogs
+
+final devLogsProvider = ChangeNotifierProvider((ref) => DEVLogs());
+
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({Key? key, required this.showNavBottomBar}) : super(key: key);
 
   final bool showNavBottomBar;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int selectedOption = 1;
 
   Widget build(BuildContext context) {
+    final parent = ref.watch(parentProvider);
+    final devLogs = ref.watch(devLogsProvider);
     return Expanded(
       child: Align(
         alignment: Alignment.topCenter,
@@ -125,12 +130,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   final categryItem = Category(
                                     isCountBased: selectedOption == 1 ? false : true,
                                     name: _textFieldController.text,
-                                    ActivityConnectUID: "C${Provider.of<Parent>(context, listen: false).categoryList.length + 1}",
+                                    ActivityConnectUID: "123",
                                     createdOn: DateTime.now(),
                                   );
 
-                                  Provider.of<Parent>(context, listen: false).addToCategoryList(categryItem);
-                                  print(Provider.of<Parent>(context, listen: false).toString());
+                                  parent.addToCategoryList(categryItem);
+                                  // print(parent.categoryList.length.toString());
+                                  if (_textFieldController.text.trim().isEmpty) {
+                                    //show snakbar that category was not added.
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Error: Category name empty!"),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text("Create"),
@@ -159,39 +174,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
             //creating a card for each category using expand operator for the list
-            ...Provider.of<Parent>(context).categoryList.map(
-                  (category) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
-                    child: Card(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      child: ListTile(
-                        title: Text(category.name),
-                        subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
-                        trailing: Text(
-                          //category.activityList.length.toString()
-                          Provider.of<Parent>(context, listen: true).categoryList.firstWhere((element) => element == category).activityList.length.toString(),
-                        ),
-                        onTap: () {
-                          //use material route to navigate to the activity screen
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
-                        },
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        splashColor: Theme.of(context).colorScheme.secondaryContainer,
-                      ),
-                      elevation: 0,
-                    )
-                        .animate()
-                        .slideY(
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeInOut,
-                          begin: 1,
-                        )
-                        .then()
-                        .shimmer(),
+            ...parent.categoryList.map(
+              (category) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+                child: Card(
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: ListTile(
+                    title: Text(category.name),
+                    subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
+                    trailing: Text(
+                      //category.activityList.length.toString()
+                      parent.categoryList.firstWhere((element) => element == category).activityList.length.toString(),
+                    ),
+                    onTap: () {
+                      //use material route to navigate to the activity screen
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    splashColor: Theme.of(context).colorScheme.secondaryContainer,
                   ),
-                ),
+                  elevation: 0,
+                )
+                    .animate()
+                    .slideY(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      begin: 1,
+                    )
+                    .then()
+                    .shimmer(),
+              ),
+            ),
 
             //card for the DEVLogs
             Padding(
@@ -201,9 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListTile(
                   title: Text("DEVLogs"),
                   subtitle: Text("View the logs for all the apps"),
-                  trailing: Text("${Provider.of<DEVLogs>(context, listen: true).projectList.length} Projects"),
+                  trailing: Text("${devLogs.projectList.length} Projects"),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
                   },
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
