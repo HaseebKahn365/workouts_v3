@@ -134,7 +134,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     createdOn: DateTime.now(),
                                   );
 
-                                  parent.addToCategoryList(categryItem);
                                   // print(parent.categoryList.length.toString());
                                   if (_textFieldController.text.trim().isEmpty) {
                                     //show snakbar that category was not added.
@@ -144,6 +143,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         duration: Duration(seconds: 2),
                                       ),
                                     );
+                                  } else {
+                                    parent.addToCategoryList(categryItem);
                                   }
 
                                   Navigator.of(context).pop();
@@ -188,7 +189,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     onTap: () {
                       //use material route to navigate to the activity screen
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(category: category)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(cat: category)));
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -218,7 +219,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   subtitle: Text("View the logs for all the apps"),
                   trailing: Text("${devLogs.projectList.length} Projects"),
                   onTap: () {
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
                   },
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
