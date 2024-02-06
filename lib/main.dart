@@ -726,7 +726,7 @@ class _WrokoutsState extends State<Wrokouts> {
                       ),
                     );
         } else {
-          return user == null
+          return user != null
               ? StartUp()
               : Scaffold(
                   drawer: returnDrawer(),
