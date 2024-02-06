@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -13,14 +14,32 @@ import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
 import 'package:workouts_v3/overall_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(
     ProviderScope(
       child: const Wrokouts(),
     ),
   );
+}
+
+//create a document under current username in firestore
+Future<void> createTestDocument() async {
+  print("start of firestore test");
+
+  // Create a reference to the users collection
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+  // Set data for the user document
+  await users.doc('some_document_id').set({
+    'full_name': 'John Doe',
+    'company': 'Stokes and Sons',
+    'age': 25,
+  });
+
+  print("Document created successfully");
 }
 
 class Wrokouts extends StatefulWidget {
@@ -96,10 +115,11 @@ class _WrokoutsState extends State<Wrokouts> {
     _loadSettings();
     themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
 
-    user = FirebaseAuth.instance.currentUser;
+    // user = FirebaseAuth.instance.currentUser;
   }
 
   String getAppBarTitle(int screenIndex) {
+    createTestDocument();
     switch (screenIndex) {
       case 0:
         return "Home";
