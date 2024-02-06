@@ -14,8 +14,6 @@ final parentProvider = ChangeNotifierProvider((ref) => Parent());
 
 //creating instance of the DEVLogs
 
-final devLogsProvider = ChangeNotifierProvider((ref) => DEVLogs());
-
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key, required this.showNavBottomBar}) : super(key: key);
 
@@ -26,11 +24,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  void refreshHome() {
+    setState(() {});
+  }
+
   int selectedOption = 1;
 
   Widget build(BuildContext context) {
     final parent = ref.watch(parentProvider);
-    final devLogs = ref.watch(devLogsProvider);
     return Expanded(
       child: Align(
         alignment: Alignment.topCenter,
@@ -217,7 +218,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: ListTile(
                   title: Text("DEVLogs"),
                   subtitle: Text("View the logs for all the apps"),
-                  trailing: Text("${devLogs.projectList.length} Projects"),
+                  trailing: Text("${parent.devLogs.projectList.length} Projects"),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
                   },

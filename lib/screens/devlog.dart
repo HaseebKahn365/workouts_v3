@@ -17,6 +17,10 @@ class DEVLogScreen extends ConsumerStatefulWidget {
 }
 
 class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
+  void refresh() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +92,7 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                     onPressed: () {
                                       //create a new Project object and add it to the project list using provider
                                       if (_textFieldController.text.trim().isNotEmpty) {
-                                        ref.read(devLogsProvider).addToProjectList(
+                                        ref.read(parentProvider).devLogs.addToProjectList(
                                               Project(
                                                 name: _textFieldController.text,
                                                 createdOn: DateTime.now(),
@@ -103,6 +107,7 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                           ),
                                         );
                                       }
+                                      refresh();
 
                                       Navigator.of(context).pop();
                                     },
@@ -126,7 +131,7 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                 //display all the projects here using cards
                 //each card will have a title, date, and a button to add a new log
 
-                ...ref.watch(devLogsProvider).projectList.map((project) {
+                ...ref.watch(parentProvider).devLogs.projectList.map((project) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 15.0, right: 15.0, left: 15.0),
                     child: Card(

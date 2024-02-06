@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
-import 'package:workouts_v3/home_screen.dart';
 
 class CategoryScreen extends ConsumerStatefulWidget {
   final Category cat;
@@ -19,16 +18,15 @@ class CategoryScreen extends ConsumerStatefulWidget {
 }
 
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
-  //we first find the recieved category through the constructor in the list of Categories of the Parent instance using provider
+  void refreshCategory() {
+    setState(() {});
+  }
 
-  late final ChangeNotifierProvider<Category> categoryProvider;
   @override
   void initState() {
-    categoryProvider = ChangeNotifierProvider<Category>((ref) => Category(isCountBased: widget.cat.isCountBased, name: widget.cat.name, ActivityConnectUID: widget.cat.name, createdOn: widget.cat.createdOn));
     super.initState();
   }
 
-  TextEditingController _controller = TextEditingController();
   TextEditingController _Tagcontroller = TextEditingController();
   List<String> tags = [];
   @override
@@ -36,7 +34,12 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(ref.watch(categoryProvider).name),
+        title: Text(
+          widget.cat.name,
+          style: TextStyle(
+            fontWeight: FontWeight.w300,
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -63,7 +66,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                       backgroundColor: Theme.of(context).colorScheme.surface,
                                       title: Center(
                                           child: Text(
-                                        "Create Activity " + (ref.watch(categoryProvider).isCountBased ? "\n (Count based)" : "\n (Time based)"),
+                                        "Create Activity " + (widget.cat.isCountBased ? "\n (Count based)" : "\n (Time based)"),
                                         style: TextStyle(
                                           fontWeight: FontWeight.w300,
                                         ),
@@ -117,12 +120,12 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                                 ),
                                               );
                                             } else {
-                                              ref.read(categoryProvider).addToActivityList(activity);
+                                              widget.cat.addToActivityList(activity);
                                               print('Tried adding activity');
                                               print(activity.toString());
-                                              //using the parent provider to add the activity to the list of activities of the category selected
-                                              ref.read(parentProvider).categoryList[ref.read(parentProvider).categoryList.indexOf(ref.read(categoryProvider))].addToActivityList(activity);
                                             }
+
+                                            refreshCategory();
 
                                             Navigator.of(context).pop();
                                           },
@@ -145,10 +148,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 ),
                 //end of adding activity
 
-                if (ref.watch(categoryProvider).activityList.isEmpty)
+                if (widget.cat.activityList.isEmpty)
                   Text("No activities found")
                 else
-                  ...ref.watch(categoryProvider).activityList.map((activity) {
+                  ...widget.cat.activityList.map((activity) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 13.0, right: 13.0, top: 4.0, bottom: 4.0),
                       child: Card(
@@ -213,7 +216,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                               ),
                               onPressed: () async {
                                 // In case the category is time-based, show the time picker
-                                if (!ref.read(categoryProvider).isCountBased) {
+                                if (!widget.cat.isCountBased) {
                                   // Get the current time
                                   TimeOfDay currentTime = TimeOfDay.now();
 
@@ -255,6 +258,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                 }
                                 //it is count based
                                 else {
+                                  TextEditingController _countController = TextEditingController();
+
                                   //count picker with validation
                                   showDialog(
                                     context: context,
@@ -267,7 +272,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 TextField(
-                                                  controller: _controller,
+                                                  controller: _countController,
                                                   keyboardType: TextInputType.number,
                                                   inputFormatters: [
                                                     FilteringTextInputFormatter.digitsOnly,
@@ -357,21 +362,21 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                         actions: [
                                           TextButton(
                                             onPressed: () {
-                                              _controller.text = "";
+                                              _countController.text = "";
                                               Navigator.pop(context);
                                             },
                                             child: Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              int? count = int.tryParse(_controller.text);
+                                              int? count = int.tryParse(_countController.text);
 
                                               if (count != null && count > 0 && count <= 5000) {
                                                 print('Valid count: $count');
                                               } else {
                                                 print('Invalid input');
                                               }
-                                              _controller.text = "";
+                                              _countController.text = "";
                                               //clear the tags controller
                                               _Tagcontroller.text = "";
                                               //empty the tag list
@@ -390,11 +395,11 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
                               child: Column(
                                 children: [
-                                  Icon((ref.watch(categoryProvider).isCountBased == true) ? FluentIcons.add_circle_24_regular : FluentIcons.timer_24_regular, size: 30),
+                                  Icon((widget.cat.isCountBased == true) ? FluentIcons.add_circle_24_regular : FluentIcons.timer_24_regular, size: 30),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                                     child: Text(
-                                      (ref.watch(categoryProvider).isCountBased == true) ? "Add Count " : "Add Time",
+                                      (widget.cat.isCountBased == true) ? "Add Count " : "Add Time",
                                     ),
                                   ),
                                 ],
