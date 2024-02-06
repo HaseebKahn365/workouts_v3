@@ -4,6 +4,16 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+/// Default [FirebaseOptions] for use with your Firebase apps.
+///
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+/// await Firebase.initializeApp(
+///   options: DefaultFirebaseOptions.currentPlatform,
+/// );
+/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -34,42 +44,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyALLDDmCMdRyDVp4ZTWNdvFVTFcaWA-zCI',
-    appId: '1:66066305844:web:92a960f7732f42b9c98b61',
-    messagingSenderId: '66066305844',
-    projectId: 'workouts-v3',
-    authDomain: 'workouts-v3.firebaseapp.com',
-    storageBucket: 'workouts-v3.appspot.com',
-    measurementId: 'G-R8E7Z211LC',
+    apiKey: 'AIzaSyBd27F-jNb1H0PY6sXz3gGpnELMq5jUCxo',
+    appId: '1:407132101706:web:ab7b2e4b13f72f9c78dab3',
+    messagingSenderId: '407132101706',
+    projectId: 'workouts-v3-7bf58',
+    authDomain: 'workouts-v3-7bf58.firebaseapp.com',
+    storageBucket: 'workouts-v3-7bf58.appspot.com',
+    measurementId: 'G-4QSWGWRBVX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDgZceYo4sAo6p8CpW-wcNBEXUydueojo8',
-    appId: '1:66066305844:android:afac192b06fa41c4c98b61',
-    messagingSenderId: '66066305844',
-    projectId: 'workouts-v3',
-    storageBucket: 'workouts-v3.appspot.com',
+    apiKey: 'AIzaSyCdV4SDA4PSJgUTr88zmwGs2ItlixRXw5Y',
+    appId: '1:407132101706:android:39b656eb6e5ff2f178dab3',
+    messagingSenderId: '407132101706',
+    projectId: 'workouts-v3-7bf58',
+    storageBucket: 'workouts-v3-7bf58.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBLZGp4Qta5Zr8F89hTR2eCIo862WbUoPw',
-    appId: '1:66066305844:ios:46f47032dd190247c98b61',
-    messagingSenderId: '66066305844',
-    projectId: 'workouts-v3',
-    storageBucket: 'workouts-v3.appspot.com',
-    iosClientId:
-        '66066305844-kmobk4uui9q6jandu4fn0pj0apqkeh5m.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCFqMaeYhacQrrrHnIspPd_fg8dsYe0X0c',
+    appId: '1:407132101706:ios:bfac5b883afc318878dab3',
+    messagingSenderId: '407132101706',
+    projectId: 'workouts-v3-7bf58',
+    storageBucket: 'workouts-v3-7bf58.appspot.com',
     iosBundleId: 'com.example.workoutsV3',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBLZGp4Qta5Zr8F89hTR2eCIo862WbUoPw',
-    appId: '1:66066305844:ios:e02da6c0e86de97ac98b61',
-    messagingSenderId: '66066305844',
-    projectId: 'workouts-v3',
-    storageBucket: 'workouts-v3.appspot.com',
-    iosClientId:
-        '66066305844-849rf7a02trhv091h903sapbqdgutl9v.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCFqMaeYhacQrrrHnIspPd_fg8dsYe0X0c',
+    appId: '1:407132101706:ios:36ee5c361c924bb378dab3',
+    messagingSenderId: '407132101706',
+    projectId: 'workouts-v3-7bf58',
+    storageBucket: 'workouts-v3-7bf58.appspot.com',
     iosBundleId: 'com.example.workoutsV3.RunnerTests',
   );
 }
