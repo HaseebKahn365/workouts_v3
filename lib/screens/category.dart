@@ -11,7 +11,8 @@ import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 
 class CategoryScreen extends ConsumerStatefulWidget {
   final Category cat;
-  CategoryScreen({Key? key, required this.cat}) : super(key: key);
+  final homeRefresh;
+  CategoryScreen({Key? key, required this.cat, required this.homeRefresh}) : super(key: key);
 
   @override
   _CategoryScreenState createState() => _CategoryScreenState();
@@ -126,6 +127,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                             }
 
                                             refreshCategory();
+                                            widget.homeRefresh();
 
                                             Navigator.of(context).pop();
                                           },

@@ -10,7 +10,8 @@ import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/home_screen.dart';
 
 class DEVLogScreen extends ConsumerStatefulWidget {
-  const DEVLogScreen({Key? key}) : super(key: key);
+  const DEVLogScreen({Key? key, required this.callableHomeRefresh}) : super(key: key);
+  final callableHomeRefresh;
 
   @override
   _DEVLogScreenState createState() => _DEVLogScreenState();
@@ -108,6 +109,7 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                         );
                                       }
                                       refresh();
+                                      widget.callableHomeRefresh();
 
                                       Navigator.of(context).pop();
                                     },

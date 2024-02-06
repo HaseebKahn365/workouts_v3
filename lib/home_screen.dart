@@ -1,4 +1,4 @@
-// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_function_declarations_over_variables
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +24,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  void refreshHome() {
-    setState(() {});
-  }
-
   int selectedOption = 1;
 
   Widget build(BuildContext context) {
+    final callableHomeRefresh = () {
+      print("Home Refreshed");
+      setState(() {});
+    };
     final parent = ref.watch(parentProvider);
     return Expanded(
       child: Align(
@@ -186,11 +186,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
                     trailing: Text(
                       //category.activityList.length.toString()
-                      parent.categoryList.firstWhere((element) => element == category).activityList.length.toString(),
+                      category.activityList.length.toString(),
                     ),
                     onTap: () {
                       //use material route to navigate to the activity screen
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(cat: category)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(cat: category, homeRefresh: callableHomeRefresh)));
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -220,7 +220,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   subtitle: Text("View the logs for all the apps"),
                   trailing: Text("${parent.devLogs.projectList.length} Projects"),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => DEVLogScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DEVLogScreen(
+                                  callableHomeRefresh: callableHomeRefresh,
+                                )));
                   },
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -286,6 +291,8 @@ class FloatingActionButtons extends StatelessWidget {
     );
   }
 }
+
+//BS
 
 const List<NavigationDestination> appBarDestinations = [
   NavigationDestination(
