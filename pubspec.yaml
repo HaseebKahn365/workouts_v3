@@ -38,7 +38,7 @@ dependencies:
   fluentui_system_icons: ^1.1.205
   firebase_core: ^2.15.0
   connectivity_plus: ^4.0.1
-  image_picker: ^1.0.1
+  image_picker: ^1.0.7
   image_cropper: ^5.0.0
   firebase_storage: ^11.2.5
   cloud_firestore: ^4.8.3

@@ -172,6 +172,7 @@ class ProjectRecord extends ChangeNotifier {
   ProjectRecord({
     required this.createdOn,
     required this.description,
+    required this.images,
   });
 
   @override

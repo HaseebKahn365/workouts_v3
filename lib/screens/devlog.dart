@@ -2,10 +2,13 @@
 
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors
 
+import 'dart:io';
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/home_screen.dart';
 
@@ -134,6 +137,22 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                 //each card will have a title, date, and a button to add a new log
 
                 ...ref.watch(parentProvider).devLogs.projectList.map((project) {
+                  TextEditingController descriptionController = TextEditingController();
+
+                  final ImagePicker imagePicker = ImagePicker();
+                  List<XFile> imageFileList = []; // Moved this list outside the map function to prevent resetting on every iteration
+
+                  void selectImages() async {
+                    final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
+                    if (selectedImages != null) {
+                      imageFileList.addAll(selectedImages);
+                      refresh();
+                    }
+                    print("${imageFileList.length} images selected");
+                  }
+
+                  descriptionController.text = ""; // Set initial description
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 15.0, right: 15.0, left: 15.0),
                     child: Card(
@@ -155,38 +174,28 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     OutlinedButton(
-                                      //reduce the content padding and hieght of the button
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                         minimumSize: Size(0, 0),
-                                        //make the border invisible
                                         side: BorderSide.none,
                                       ),
                                       child: Text(
-                                        //display only the date of the project ie dd:mm:yy
-                                        // project.getLastUpdated()?.day.toString() + '/' + project.getLastUpdated()?.month.toString() + '/' + project.getLastUpdated().year.toString(),
                                         project.createdOn.day.toString() + '/' + project.createdOn.month.toString() + '/' + project.createdOn.year.toString(),
                                       ),
                                       onPressed: () {
-                                        //navigate to the project screen
-                                        // Navigator.pushNamed(context, '/project', arguments: project);
+                                        // Navigate to the project screen
                                       },
                                     ),
-                                    //wrap the following Text in an outline button
-                                    // Text("Logs " + project.logs.length.toString())
                                     OutlinedButton(
-                                      //reduce the content padding and hieght of the button
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                         minimumSize: Size(0, 0),
                                         side: BorderSide.none,
                                       ),
-
                                       onPressed: () {
-                                        //navigate to the project screen
-                                        Navigator.pushNamed(context, '/project', arguments: project);
+                                        // Navigate to the project screen
                                       },
                                       child: Text(
                                         "Logs " + project.projectRecordList.length.toString(),
@@ -195,17 +204,10 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                   ],
                                 ),
                               ),
-
-                              //create a container widget that will have an add image icon outlined button and label add image
-
                               Container(
                                 child: Column(
                                   children: [
-                                    //add a label here
-                                    //add an outlined button here
                                     OutlinedButton(
-                                      //reduce the border radius
-
                                       style: OutlinedButton.styleFrom(
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(10),
@@ -215,8 +217,7 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                         minimumSize: Size(0, 0),
                                       ),
                                       onPressed: () {
-                                        //add an image to the project
-                                        // Navigator.pushNamed(context, '/project', arguments: project);
+                                        selectImages();
                                       },
                                       child: Column(
                                         children: [
@@ -228,15 +229,38 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                         ],
                                       ),
                                     ),
+                                    Wrap(spacing: 20, children: [
+                                      ...imageFileList.map((image) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                width: 2,
+                                              ),
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: Image.file(
+                                                File(image.path),
+                                                fit: BoxFit.cover,
+                                                width: 100,
+                                                height: 100,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ]),
                                   ],
                                 ),
                               ),
-                              //we will implement the wrap widget for images here later
-
-                              //here will be big textfield for adding description of the project
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                                 child: TextField(
+                                  controller: descriptionController,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'Description',
@@ -244,43 +268,51 @@ class _DEVLogScreenState extends ConsumerState<DEVLogScreen> {
                                   maxLines: 2,
                                 ),
                               ),
-
-                              //here we will have the save and cancel buttons
                               Padding(
                                 padding: EdgeInsets.only(right: 10, left: 10, top: 5),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     OutlinedButton(
-                                      //reduce the content padding and hieght of the button
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                         minimumSize: Size(0, 0),
-                                        //make the border invisible
                                         side: BorderSide.none,
                                       ),
                                       child: Text(
                                         'Cancel',
                                       ),
                                       onPressed: () {
-                                        //navigate to the project screen
-                                        // Navigator.pushNamed(context, '/project', arguments: project);
+                                        // Clear the image list and reset description
+                                        imageFileList.clear();
+                                        descriptionController.text = "";
                                       },
                                     ),
-                                    //wrap the following Text in an outline button
-                                    // Text("Logs " + project.logs.length.toString())
                                     OutlinedButton(
-                                      //reduce the content padding and hieght of the button
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Theme.of(context).colorScheme.onSurface,
                                         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                         minimumSize: Size(0, 0),
                                       ),
-
                                       onPressed: () {
-                                        //navigate to the project screen
-                                        // Navigator.pushNamed(context, '/project', arguments: project);
+                                        // Save the changes
+                                        project.projectRecordList.add(
+                                          ProjectRecord(
+                                            description: descriptionController.text,
+                                            images: imageFileList
+                                                .map((image) => Image.file(
+                                                      //conver the XFile to File
+                                                      File(image.path),
+                                                    ))
+                                                .toList(),
+                                            createdOn: DateTime.now(),
+                                          ),
+                                        );
+
+                                        // Clear the image list and reset description
+                                        imageFileList.clear();
+                                        descriptionController.text = "";
                                       },
                                       child: Text(
                                         "Save",
