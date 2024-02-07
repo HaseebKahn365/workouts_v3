@@ -1,12 +1,10 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workouts_v3/today_screen.dart';
@@ -58,7 +56,7 @@ const List<Color> colorOptions = [m3BaseColor, Colors.blue, Colors.teal, Colors.
 const List<String> colorText = <String>["M3 Baseline", "Blue", "Teal", "Green", "Yellow", "Orange", "Pink", "Lime"];
 
 class _WrokoutsState extends State<Wrokouts> {
-  User? user;
+  String? phoneId;
   bool useMaterial3 = true;
   bool useLightMode = true;
   int colorSelected = 0;
@@ -83,39 +81,12 @@ class _WrokoutsState extends State<Wrokouts> {
     prefs.setInt('colorSelected', colorSelected);
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth!.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
-
-  Future<void> signOut() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut();
-    setState(() {
-      user = null;
-    });
-  }
-
   @override
   initState() {
     super.initState();
     _loadSettings();
     themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
-
-    // user = FirebaseAuth.instance.currentUser;
+    getPhoneId();
   }
 
   String getAppBarTitle(int screenIndex) {
@@ -132,6 +103,95 @@ class _WrokoutsState extends State<Wrokouts> {
         return "Home";
     }
   }
+
+  //start of phone id getter
+
+  void getPhoneId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? _phoneId = prefs.getString('phoneId');
+
+    if (_phoneId == null) {
+      // Prompt user to enter their name
+      String? userName = await _getUserName();
+
+      // Validate the entered name
+      if (userName != null && _containsAtLeastTwoIntegers(userName)) {
+        // Create phoneId using entered name
+        _phoneId = userName.toLowerCase().replaceAll(' ', '_');
+
+        // Save phoneId to SharedPreferences
+        prefs.setString('phoneId', _phoneId);
+
+        // Create document under this phoneId in the users collection
+        await FirebaseFirestore.instance.collection('users').doc(_phoneId).set({
+          'name': userName,
+        });
+      } else {
+        // Show error message or handle invalid input
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Invalid Input'),
+              content: Text('Please enter a name with at least two integers.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+    }
+
+    setState(() {
+      phoneId = _phoneId;
+    });
+  }
+
+  Future<String?> _getUserName() async {
+    TextEditingController nameController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Your Name'),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(hintText: "Name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(nameController.text.trim());
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _containsAtLeastTwoIntegers(String str) {
+    int count = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str.codeUnitAt(i) >= 48 && str.codeUnitAt(i) <= 57) {
+        count++;
+        if (count >= 2) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  //end of phone id getter
 
   Widget returnDrawer() {
     return Builder(builder: (context) {
@@ -615,88 +675,90 @@ class _WrokoutsState extends State<Wrokouts> {
               ],
             ),
           ),
-          PageViewModel(
-            //create a page with a gesture detector container with child as google.png
-            decoration: PageDecoration(
-              pageColor: Theme.of(context).colorScheme.background,
-              bodyTextStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
-              titleTextStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color),
-            ),
-            titleWidget: Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Sign in with ",
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Builder(
-                    builder: (context) {
-                      return Text(
-                        "Google",
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      );
-                    },
-                  ),
-                  //Select your favourite color:
-                  Text("\n\nTap on the button to sign in",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300,
-                      )),
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ),
-            bodyWidget: GestureDetector(
-              onTap: () async {
-                // setState(() {
-                //   signInWithGoogle().then((value) {
-                //   });
-                // });
-                print("Sign in button pressed!");
-                setState(() {
-                  //don't use the google sign in for now. just use a local user
-                  // user = User();
-                  user = FirebaseAuth.instance.currentUser;
-                });
-              },
-              child: Container(
-                  width: 200,
-                  //give it a rounded border
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Theme.of(context).colorScheme.surface, boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                      spreadRadius: 20,
-                      blurRadius: 30,
-                      offset: Offset(0, 3),
-                    )
-                  ]),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset("assets/images/google.png", fit: BoxFit.cover),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: Text(
-                            "Sign in with Google",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
-                          ))
-                    ],
-                  )),
-            ),
-          ),
+          // PageViewModel(
+          //   //create a page with a gesture detector container with child as google.png
+          //   decoration: PageDecoration(
+          //     pageColor: Theme.of(context).colorScheme.background,
+          //     bodyTextStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+          //     titleTextStyle: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color),
+          //   ),
+          //   titleWidget: Padding(
+          //     padding: const EdgeInsets.only(top: 20.0),
+          //     child: Column(
+          //       children: [
+          //         Text(
+          //           "Sign in with ",
+          //           style: TextStyle(
+          //             fontSize: 40,
+          //             fontWeight: FontWeight.w300,
+          //           ),
+          //         ),
+          //         Builder(
+          //           builder: (context) {
+          //             return Text(
+          //               "Google",
+          //               style: TextStyle(
+          //                 fontSize: 40,
+          //                 fontWeight: FontWeight.w400,
+          //                 color: Theme.of(context).colorScheme.primary,
+          //               ),
+          //             );
+          //           },
+          //         ),
+          //         //Select your favourite color:
+          //         Text("\n\nTap on the button to sign in",
+          //             style: TextStyle(
+          //               fontSize: 20,
+          //               fontWeight: FontWeight.w300,
+          //             )),
+          //         const SizedBox(height: 50),
+          //       ],
+          //     ),
+          //   ),
+          //   bodyWidget: GestureDetector(
+          //     onTap: () async {
+          //       await signInWithGoogle();
+          //       if (mounted) {
+          //         setState(() {
+          //           user = FirebaseAuth.instance.currentUser;
+          //           print("User is signed in with credentials: $user");
+          //         });
+          //       }
+          //     },
+          //     child: Container(
+          //         width: 200,
+          //         //give it a rounded border
+          //         decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Theme.of(context).colorScheme.surface, boxShadow: [
+          //           BoxShadow(
+          //             color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+          //             spreadRadius: 20,
+          //             blurRadius: 30,
+          //             offset: Offset(0, 3),
+          //           )
+          //         ]),
+          //         child: Column(
+          //           children: [
+          //             Padding(
+          //               padding: const EdgeInsets.all(8.0),
+          //               child: Image.asset("assets/images/google.png", fit: BoxFit.cover),
+          //             ),
+          //             Padding(
+          //                 padding: const EdgeInsets.only(bottom: 15),
+          //                 child: Text(
+          //                   "Sign in with Google",
+          //                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+          //                 ))
+          //           ],
+          //         )),
+          //   ),
+          // ),
         ],
-        onDone: () {},
+        onDone: () async {
+          getPhoneId();
+          setState(() {
+            phoneId = phoneId;
+          });
+        },
         done: const Text("Done"),
         showSkipButton: true,
         skip: const Text("Skip"),
@@ -731,7 +793,7 @@ class _WrokoutsState extends State<Wrokouts> {
         if (constraints.maxWidth < narrowScreenWidthThreshold) {
           return
               //check if user is null then take to startup screen other wise load the app
-              user != null
+              phoneId == null
                   ? StartUp()
                   : Scaffold(
                       drawer: returnDrawer(),
@@ -746,7 +808,7 @@ class _WrokoutsState extends State<Wrokouts> {
                       ),
                     );
         } else {
-          return user != null
+          return phoneId == null
               ? StartUp()
               : Scaffold(
                   drawer: returnDrawer(),
