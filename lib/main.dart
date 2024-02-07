@@ -71,6 +71,8 @@ class _WrokoutsState extends State<Wrokouts> {
       useLightMode = prefs.getBool('useLightMode') ?? true;
       colorSelected = prefs.getInt('colorSelected') ?? 0;
       themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
+      //load shared preferences under the name phoen id
+      phoneId = prefs.getString('phoneId');
       print('Loaded the sharedPrefrences themeData');
     });
   }
@@ -86,7 +88,8 @@ class _WrokoutsState extends State<Wrokouts> {
     super.initState();
     _loadSettings();
     themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
-    getPhoneId();
+
+    // user = FirebaseAuth.instance.currentUser;
   }
 
   String getAppBarTitle(int screenIndex) {
@@ -103,95 +106,6 @@ class _WrokoutsState extends State<Wrokouts> {
         return "Home";
     }
   }
-
-  //start of phone id getter
-
-  void getPhoneId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? _phoneId = prefs.getString('phoneId');
-
-    if (_phoneId == null) {
-      // Prompt user to enter their name
-      String? userName = await _getUserName();
-
-      // Validate the entered name
-      if (userName != null && _containsAtLeastTwoIntegers(userName)) {
-        // Create phoneId using entered name
-        _phoneId = userName.toLowerCase().replaceAll(' ', '_');
-
-        // Save phoneId to SharedPreferences
-        prefs.setString('phoneId', _phoneId);
-
-        // Create document under this phoneId in the users collection
-        await FirebaseFirestore.instance.collection('users').doc(_phoneId).set({
-          'name': userName,
-        });
-      } else {
-        // Show error message or handle invalid input
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Invalid Input'),
-              content: Text('Please enter a name with at least two integers.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-        return;
-      }
-    }
-
-    setState(() {
-      phoneId = _phoneId;
-    });
-  }
-
-  Future<String?> _getUserName() async {
-    TextEditingController nameController = TextEditingController();
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Enter Your Name'),
-          content: TextField(
-            controller: nameController,
-            decoration: InputDecoration(hintText: "Name"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(nameController.text.trim());
-              },
-              child: Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  bool _containsAtLeastTwoIntegers(String str) {
-    int count = 0;
-    for (int i = 0; i < str.length; i++) {
-      if (str.codeUnitAt(i) >= 48 && str.codeUnitAt(i) <= 57) {
-        count++;
-        if (count >= 2) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  //end of phone id getter
 
   Widget returnDrawer() {
     return Builder(builder: (context) {
@@ -470,45 +384,70 @@ class _WrokoutsState extends State<Wrokouts> {
                     padding: EdgeInsets.only(left: 12, top: 5, bottom: 5),
                     child: ElevatedButton(
                       onPressed: () {
+                        //show simple dialogue box with logout button
                         showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text('Reset Everything'),
-                                content: SingleChildScrollView(
-                                  child: ListBody(
-                                    children: const <Widget>[
-                                      Text('Are you sure you want to reset everything? Type \'reset all\' to confirm\n\n'),
-
-                                      //creating a text field to enter the text
-                                      TextField(
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(10),
-                                          border: OutlineInputBorder(),
-                                          labelText: 'reset all',
-                                        ),
+                                title: const Text('Are you sure you want to logout?'),
+                                //content should have a logout icon
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      FluentIcons.sign_out_24_filled,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      size: 130,
+                                    ),
+                                    RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
+                                        text: 'You are about to log out. ',
+                                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                                        children: <TextSpan>[
+                                          TextSpan(text: '\n\nRemember your id:  '),
+                                          TextSpan(text: phoneId, style: TextStyle(fontWeight: FontWeight.bold)),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    )
+                                  ],
                                 ),
+
                                 actions: <Widget>[
+                                  //create a cancel button
                                   TextButton(
-                                    child: const Text('Yes'),
+                                    child: const Text('Cancel'),
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
                                   ),
-                                  TextButton(
-                                    child: const Text('No'),
+                                  //create a save button with rounded border outline
+                                  ElevatedButton(
                                     onPressed: () {
+                                      setState(() {
+                                        phoneId = null;
+                                        SharedPreferences.getInstance().then((prefs) {
+                                          prefs.remove('phoneId');
+                                        });
+                                      });
+                                      print("The user has been logged out");
                                       Navigator.of(context).pop();
                                     },
+                                    child: const Text('Logout'),
+                                    //make elevation 0 and rounded corners
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(1),
+                                    ),
                                   ),
                                 ],
                               );
                             });
                       },
-                      child: const Text('Reset my Data'),
+                      child: const Text('Logout'),
                       //make elevation 0 and rounded corners
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
@@ -753,11 +692,72 @@ class _WrokoutsState extends State<Wrokouts> {
           //   ),
           // ),
         ],
-        onDone: () async {
-          getPhoneId();
-          setState(() {
-            phoneId = phoneId;
-          });
+        onDone: () {
+          //check if phone id is null. if it is then show an alert dialogue box to enter the username where length should be greater than 4 characters
+          if (phoneId == null) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Enter your username'),
+                    content: SingleChildScrollView(
+                      child: ListBody(
+                        children: <Widget>[
+                          //creating a text field to enter the text
+                          TextField(
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(10),
+                              border: OutlineInputBorder(),
+                              labelText: 'Username',
+                            ),
+                            onChanged: (value) {
+                              phoneId = value;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      //create a cancel button
+                      TextButton(
+                        child: const Text('Cancel'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      //create a save button with rounded border outline
+                      ElevatedButton(
+                        onPressed: () {
+                          if (phoneId!.length > 4) {
+                            SharedPreferences.getInstance().then((prefs) {
+                              prefs.setString('phoneId', phoneId!);
+                            });
+                            //show snakbar that remember $phoneId and use setState to set the phoneId
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Remember your name: $phoneId"),
+                              duration: const Duration(seconds: 3),
+                            ));
+
+                            setState(() {
+                              phoneId = phoneId;
+                            });
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: const Text('Save'),
+                        //make elevation 0 and rounded corners
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(1),
+                        ),
+                      ),
+                    ],
+                  );
+                });
+          }
         },
         done: const Text("Done"),
         showSkipButton: true,
