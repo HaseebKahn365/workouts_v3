@@ -23,23 +23,6 @@ Future<void> main() async {
   );
 }
 
-//create a document under current username in firestore
-Future<void> createTestDocument() async {
-  print("start of firestore test");
-
-  // Create a reference to the users collection
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-  // Set data for the user document
-  await users.doc('some_document_id').set({
-    'full_name': 'John Doe',
-    'company': 'Stokes and Sons',
-    'age': 25,
-  });
-
-  print("Document created successfully");
-}
-
 class Wrokouts extends StatefulWidget {
   const Wrokouts({super.key});
 
@@ -94,7 +77,6 @@ class _WrokoutsState extends State<Wrokouts> {
   }
 
   String getAppBarTitle(int screenIndex) {
-    createTestDocument();
     switch (screenIndex) {
       case 0:
         return "Home";

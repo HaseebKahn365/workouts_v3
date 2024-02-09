@@ -189,9 +189,19 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                               ? Container()
                               : Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                  child: Text(
-                                    'Selected Images: ${images.length}',
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'Selected Images: ${images.length}',
+                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                                      ),
+                                      (imageFileList.length >= 10)
+                                          ? Text(
+                                              '(Only the first 10 images will be uploaded)',
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+                                            )
+                                          : Container()
+                                    ],
                                   ),
                                 ),
                           SingleChildScrollView(
@@ -339,8 +349,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                   onPressed: () {
                                     // Save the changes
                                     if (tags.isNotEmpty || _countController.text.isNotEmpty || imageFileList.isNotEmpty) {
+                                      DateTime now = DateTime.now();
                                       final FirebaseUploader uploaderInstance = FirebaseUploader(
-                                        uploadTime: DateTime.now(),
+                                        uploadTime: now,
                                         tags: tags.isNotEmpty ? tags : [""],
                                         imageFileList: imageFileList,
                                         activity: widget.activity,
@@ -387,15 +398,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                                 }
                                               },
                                             ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  //await the deletion of the activity from firestore
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text('Cancel'),
-                                              ),
-                                            ],
                                           );
                                         },
                                       );

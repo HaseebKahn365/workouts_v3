@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_compression/image_compression.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/main.dart';
@@ -26,6 +27,7 @@ class FirebaseUploader {
     required this.recordCount,
   });
 
+  FirebaseStorage storage = FirebaseStorage.instance;
   late String timeEpochCode = uploadTime.millisecondsSinceEpoch.toString();
   Future<bool> uploadTheRecord() async {
     //this method will be responsible for the upload of the record to the cloud firestore
@@ -38,10 +40,6 @@ class FirebaseUploader {
     if (!(await checkInternetConnection())) {
       throw "No internet connection";
     }
-
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference users = firestore.collection('users');
-    DocumentReference userDoc = users.doc(phoneId); //phoneId is a global variable
 
     //upload the images
 
@@ -57,17 +55,25 @@ class FirebaseUploader {
 
     // Uploading all the images to Firebase Storage and getting the URLs
     try {
-      for (int i = 0; i < imageFileList.length; i++) {
+      for (int i = 0; i < 15 && i < imageFileList.length; i++) {
+        // Compress the image using image_compression
         File file = File(imageFileList[i].path);
+        ImageFile input = ImageFile(
+          rawBytes: file.readAsBytesSync(),
+          filePath: file.path,
+        );
+        ImageFile output = await compressInQueue(ImageFileConfiguration(input: input));
 
-        // Upload the image to Firebase Storage and get the URL
-        FirebaseStorage storage = FirebaseStorage.instance;
+        print("Image $i compressed to size ${output.rawBytes.length} bytes");
+
+        // Upload the compressed image to Firebase Storage and get the URL
         Reference ref = storage.ref().child('phoneId/$activityName/$uploadTime/$i.jpg');
-        await ref.putFile(file); // Wait for the upload operation to complete
+        await ref.putData(output.rawBytes); // Upload compressed image data
         String imageUrl = await ref.getDownloadURL(); // Get the URL of the uploaded image
         imageUrls.add(imageUrl); // Add the URL to the list
         print("Image $i uploaded");
       }
+
       print("All images uploaded successfully");
 
       print(imageUrls);
@@ -95,7 +101,7 @@ class FirebaseUploader {
       //check if the activity document exists otherwise create one
       // Check if the activity document exists; otherwise, create one
 
-      //! This is the line that is causing the error
+      //! creating/ modifying the activity document
 
       DocumentSnapshot activityDoc = await userDoc.collection('activities').doc(activityName).get();
       if (!activityDoc.exists) {
@@ -132,10 +138,6 @@ class FirebaseUploader {
 // Perform the update
       await userDoc.collection('activities').doc(activityName).update(updateData);
 
-//! This is the line that is causing the error
-
-      // I/flutter (19543): future finished with error type '_Map<dynamic, dynamic>' is not a subtype of type 'Map<String, dynamic>' of 'data'
-
       return true; // Return true on success
     } catch (e) {
       print("Error uploading images: $e");
@@ -153,5 +155,17 @@ class FirebaseUploader {
       return false; // No internet connection
     }
     return false; // Default to no connection112
+  }
+
+  //defining a disposer method
+  void dispose() {
+    // Cancel any ongoing Firebase Storage upload tasks
+    storage.ref().storage.setMaxUploadRetryTime(Duration(seconds: 1));
+    print("cancelled all ongoing uploads after 1 second of destruction");
+
+    // Terminate Firestore to cancel any ongoing queries or transactions
+    FirebaseFirestore.instance.terminate();
+
+    //terminate the firebase storage instance
   }
 }
