@@ -46,13 +46,4 @@ class Activity extends ChangeNotifier {
     shouldAppear = false;
     notifyListeners();
   }
-
-  void addRecord(List<String> imgUrls, List<String> tags, int count) {
-    datedRecs[DateTime.now()] = count;
-    totalRecords++;
-    datedRecs[DateTime.now()] = totalRecords;
-    imgMapArray[DateTime.now().toString()] = imgUrls;
-    tagMapArray[DateTime.now().toString()] = tags;
-    notifyListeners();
-  }
 }

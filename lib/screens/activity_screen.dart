@@ -9,6 +9,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
+import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
 
 class ActivityScreen extends ConsumerStatefulWidget {
   final Activity activity;
@@ -197,14 +198,25 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                             //display each image iin a conatiner
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                              children: images
+                              //reverse the elements
+
+                              children: images.reversed
                                   .map(
-                                    (e) => Padding(
+                                    (image) => Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(100),
+                                          border: Border.all(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            width: 2,
+                                          ),
+                                        ),
                                         height: 100,
                                         width: 100,
-                                        child: e,
+                                        child: ClipOval(
+                                          child: image,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -327,9 +339,69 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                   onPressed: () {
                                     // Save the changes
                                     if (tags.isNotEmpty || _countController.text.isNotEmpty || imageFileList.isNotEmpty) {
-                                      widget.activity.addRecord(imageFileList.map((e) => e.path).toList(), tags, int.parse(_countController.text));
-                                      resetter();
-                                      widget.callableRefresh();
+                                      final FirebaseUploader uploaderInstance = FirebaseUploader(
+                                        uploadTime: DateTime.now(),
+                                        tags: tags.isNotEmpty ? tags : [""],
+                                        imageFileList: imageFileList,
+                                        activity: widget.activity,
+                                        recordCount: _countController.text.isNotEmpty ? int.parse(_countController.text) : 0,
+                                      );
+
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            content: FutureBuilder(
+                                              future: uploaderInstance.uploadTheRecord(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState == ConnectionState.done) {
+                                                  if (snapshot.hasError) {
+                                                    print("future finished with error ${snapshot.error}");
+
+                                                    return Text('Error: ${snapshot.error}');
+                                                  } else {
+                                                    print("future finished executing");
+
+                                                    Navigator.pop(context);
+                                                    return Text('Saved');
+                                                  }
+                                                } else {
+                                                  print("future running");
+                                                  return const SizedBox(
+                                                    height: 100,
+                                                    width: 100,
+                                                    child: Center(
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          CircularProgressIndicator(),
+                                                          SizedBox(
+                                                            height: 20,
+                                                          ),
+                                                          Center(child: Text('Saving...')),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  //await the deletion of the activity from firestore
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text('Cancel'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+
+                                      // resetter();
+                                      // widget.callableRefresh();
                                     }
                                   },
                                   child: Text(
