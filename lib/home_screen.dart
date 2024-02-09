@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
-import 'package:workouts_v3/screens/category.dart';
-import 'package:workouts_v3/screens/devlog.dart';
+import 'package:workouts_v3/screens/activity_screen.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
 
@@ -59,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             backgroundColor: Theme.of(context).colorScheme.surface,
                             title: Center(
                                 child: const Text(
-                              "Create Category",
+                              "Create Activity",
                               style: TextStyle(
                                 fontWeight: FontWeight.w300,
                               ),
@@ -78,7 +77,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
-                                    labelText: 'Category Name',
+                                    labelText: 'Activity Name',
                                   ),
                                 ),
                                 //radio buttons for selecting the type of the category
@@ -128,24 +127,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               TextButton(
                                 onPressed: () {
                                   //create a Category Object and add it to the list
-                                  final categryItem = Category(
+                                  final activityItem = Activity(
                                     isCountBased: selectedOption == 1 ? false : true,
                                     name: _textFieldController.text,
-                                    ActivityConnectUID: "123",
-                                    createdOn: DateTime.now(),
                                   );
 
-                                  // print(parent.categoryList.length.toString());
                                   if (_textFieldController.text.trim().isEmpty) {
-                                    //show snakbar that category was not added.
+                                    //show snakbar that activity was not added.
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text("Error: Category name empty!"),
+                                        content: Text("Error: Activity name empty!"),
                                         duration: Duration(seconds: 2),
                                       ),
                                     );
                                   } else {
-                                    parent.addToCategoryList(categryItem);
+                                    parent.addActivity(activityItem);
                                   }
 
                                   Navigator.of(context).pop();
@@ -159,7 +155,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text("Add Category"),
+                  //display the activities length we will remove it later
+
+                  label: Text("Add Activity [ ${parent.activities.length} ]"),
                 ),
               ),
             )
@@ -176,21 +174,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
 
             //creating a card for each category using expand operator for the list
-            ...parent.categoryList.map(
-              (category) => Padding(
+            ...parent.activities.map(
+              (activity) => Padding(
                 padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
                 child: Card(
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: ListTile(
-                    title: Text(category.name),
-                    subtitle: Text(category.isCountBased ? "Count Based" : "Time Based"),
+                    title: Text(activity.name),
+                    subtitle: Text(activity.isCountBased ? "Count Based" : "Time Based"),
                     trailing: Text(
-                      //category.activityList.length.toString()
-                      category.activityList.length.toString(),
+                      //activity.datedRecs.length.toString(),
+                      activity.totalRecords.toString(),
                     ),
                     onTap: () {
-                      //use material route to navigate to the activity screen
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryScreen(cat: category, homeRefresh: callableHomeRefresh)));
+                      //navigate to the activity screen using material route
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ActivityScreen(
+                            activity: activity,
+                            callableRefresh: callableHomeRefresh,
+                          ),
+                        ),
+                      );
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -208,40 +213,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     .then()
                     .shimmer(),
               ),
-            ),
-
-            //card for the DEVLogs
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
-              child: Card(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                child: ListTile(
-                  title: Text("DEVLogs"),
-                  subtitle: Text("View the logs for all the apps"),
-                  trailing: Text("${parent.devLogs.projectList.length} Projects"),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DEVLogScreen(
-                                  callableHomeRefresh: callableHomeRefresh,
-                                )));
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  splashColor: Theme.of(context).colorScheme.secondaryContainer,
-                ),
-                elevation: 0,
-              )
-                  .animate()
-                  .slideY(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                    begin: 1,
-                  )
-                  .then()
-                  .shimmer(),
             ),
           ],
         ),
@@ -292,7 +263,7 @@ class FloatingActionButtons extends StatelessWidget {
   }
 }
 
-//BS
+//bottom navigators and navigation rails code
 
 const List<NavigationDestination> appBarDestinations = [
   NavigationDestination(
@@ -331,27 +302,6 @@ final List<NavigationRailDestination> navRailDestinations = appBarDestinations
     )
     .toList();
 
-const List<Widget> exampleBarDestinations = [
-  NavigationDestination(
-    tooltip: "",
-    icon: Icon(Icons.explore_outlined),
-    label: 'Explore',
-    selectedIcon: Icon(Icons.explore),
-  ),
-  NavigationDestination(
-    tooltip: "",
-    icon: Icon(Icons.pets_outlined),
-    label: 'Pets',
-    selectedIcon: Icon(Icons.pets),
-  ),
-  NavigationDestination(
-    tooltip: "",
-    icon: Icon(Icons.account_box_outlined),
-    label: 'Account',
-    selectedIcon: Icon(Icons.account_box),
-  )
-];
-
 class NavigationBars extends StatefulWidget {
   final void Function(int)? onSelectItem;
   final int selectedIndex;
@@ -382,7 +332,7 @@ class _NavigationBarsState extends State<NavigationBars> {
         });
         if (!widget.isExampleBar) widget.onSelectItem!(index);
       },
-      destinations: widget.isExampleBar ? exampleBarDestinations : appBarDestinations,
+      destinations: widget.isExampleBar ? [] : appBarDestinations,
     );
   }
 }

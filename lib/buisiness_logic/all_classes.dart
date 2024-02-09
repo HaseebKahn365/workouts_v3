@@ -1,182 +1,58 @@
+import 'package:flutter/material.dart';
+
+//this application is primarily connected to the firebase for reading and writing data.
+//activites are tracked by the user and stored in the cloud firestore in the following manner:
 /*
-Parent:
-List<Category> categoryList;
-addToCategoryList(); //with notifyListeners();
-.toString //overloaded
-
-Category:
-Bool isCountBased;
-String name;
-String ActivityConnectUID;
-DateTime createdOn;
-List<Activities> activityList;
-addToActivityList(); //with notifyListeners();
-.toString //overloaded
-
-Activity:
-String name;
-DateTime createdOn;
-List<String> tags;
-DateTime lastUpdated;
-Map<DateTime, Value> countMap;
-addToCountMap(); //with notifyListeners();
-.toString //overloaded
-
-DEVLogs:
-List<Project> projectList;
-addToProjectList(); //with notifyListeners();
-.toString //overloaded
-
-Project:
-String name;
-DateTime createdOn;
-Future<bool> uploadToFirestore(); 
-List<ProjectRecord> projectRecordList;
-addToProjectRecordList(); //with notifyListeners();
-
-ProjectRecord:
-List<Image> images;
-DateTime createdOn;
-String description;
-.toString //overloaded
-
+users collection
+  - user document {uid = phoneId aka username}
+    - activities collection
+      - activity document {uid = activityName}
+        - bool: isCountBased
+        - bool: shouldAppear
+        - name: string
+        - isCountBased: bool
+        - int: totalRecords
+        - datedRecs: Map<DateTime, int>
+        - imgMapArray: Map<String(DateTime), Array<String (images urls)>>
+        - tagMapArray: Map<String(DateTime), Array<String (tags)>>
 
  */
 
-import 'package:flutter/material.dart';
-
-//lets implement all the classes along with their constructors and methods
-
 class Parent extends ChangeNotifier {
-  List<Category> categoryList = [];
-  DEVLogs devLogs = DEVLogs();
-
-  Parent() {
-    print('Parent constructor called');
-  }
-
-  void addToCategoryList(Category category) {
-    categoryList.add(category);
+  //there is only one parent object in the application that will consist of a list of Activity objects
+  List<Activity> activities = [];
+  int totalActivities = 0;
+  // method to add an activity to the list
+  void addActivity(Activity activity) {
+    activities.add(activity);
+    totalActivities++;
     notifyListeners();
-  }
-
-  @override
-  String toString() {
-    return 'Parent: ${categoryList.length} \n ${devLogs.toString()}';
-  }
-}
-
-class Category extends ChangeNotifier {
-  bool isCountBased;
-  String name;
-  String ActivityConnectUID;
-  DateTime createdOn;
-  List<Activity> activityList = [];
-
-  Category({
-    required this.isCountBased,
-    required this.name,
-    required this.ActivityConnectUID,
-    required this.createdOn,
-  });
-
-  //overload the == operator to compare two categories on the bases of name and createdOn
-  bool operator ==(Object other) {
-    if (other is Category) {
-      return (this.name == other.name && this.createdOn == other.createdOn);
-    } else {
-      return false;
-    }
-  }
-
-  void addToActivityList(Activity activity) {
-    activityList.add(activity);
-    notifyListeners();
-  }
-
-  @override
-  String toString() {
-    return 'Category: $name \n ${activityList.length} activities';
   }
 }
 
 class Activity extends ChangeNotifier {
+  bool isCountBased;
+  bool shouldAppear = true; //used to remove the activity from the list and firestore just by setting it to false
+  DateTime createdOn = DateTime.now();
+  int totalRecords = 0;
   String name;
-  DateTime createdOn;
-  List<String> tags = [];
-  DateTime lastUpdated;
-  Map<DateTime, int> countMap = {};
+  Map<DateTime, int> datedRecs = {};
+  Map<String, List<String>> imgMapArray = {};
+  Map<String, List<String>> tagMapArray = {};
 
-  Activity({
-    required this.name,
-    required this.createdOn,
-    required this.lastUpdated,
-  });
+  Activity({required this.name, required this.isCountBased});
 
-  void addToCountMap(int value, DateTime date) {
-    countMap[date] = value;
-
+  void mockDelete() {
+    shouldAppear = false;
     notifyListeners();
   }
 
-  @override
-  String toString() {
-    return 'Activity: $name';
-  }
-}
-
-class DEVLogs extends ChangeNotifier {
-  List<Project> projectList = [];
-
-  void addToProjectList(Project project) {
-    projectList.add(project);
+  void addRecord(List<String> imgUrls, List<String> tags, int count) {
+    datedRecs[DateTime.now()] = count;
+    totalRecords++;
+    datedRecs[DateTime.now()] = totalRecords;
+    imgMapArray[DateTime.now().toString()] = imgUrls;
+    tagMapArray[DateTime.now().toString()] = tags;
     notifyListeners();
-  }
-
-  @override
-  String toString() {
-    return 'DEVLogs: ${projectList.length} projects';
-  }
-}
-
-class Project extends ChangeNotifier {
-  String name;
-  DateTime createdOn;
-  Future<bool> uploadToFirestore() async {
-    return true;
-  }
-
-  Project({
-    required this.name,
-    required this.createdOn,
-  });
-
-  List<ProjectRecord> projectRecordList = [];
-
-  void addToProjectRecordList(ProjectRecord projectRecord) {
-    projectRecordList.add(projectRecord);
-    notifyListeners();
-  }
-
-  @override
-  String toString() {
-    return 'Project: $name, ${projectRecordList.length} records';
-  }
-}
-
-class ProjectRecord extends ChangeNotifier {
-  List<Image> images = [];
-  DateTime createdOn;
-  String description;
-
-  ProjectRecord({
-    required this.createdOn,
-    required this.description,
-    required this.images,
-  });
-
-  @override
-  String toString() {
-    return 'ProjectRecord: $description \n ${images.length} images';
   }
 }
