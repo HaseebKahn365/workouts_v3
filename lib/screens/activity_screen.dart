@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
+import 'package:workouts_v3/home_screen.dart';
 
 class ActivityScreen extends ConsumerStatefulWidget {
   final Activity activity;
@@ -373,9 +374,26 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                                     return Text('Error: ${snapshot.error}');
                                                   } else {
                                                     print("future finished executing");
+                                                    //incrementing the record count
+                                                    widget.activity.totalRecords++;
 
-                                                    Navigator.pop(context);
-                                                    return Text('Saved');
+                                                    //call resetters after 1 second
+                                                    Future.delayed(Duration(milliseconds: 1000)).then((value) {
+                                                      resetter();
+                                                      widget.callableRefresh();
+                                                    });
+
+                                                    Future.delayed(Duration(milliseconds: 500)).then((value) => Navigator.pop(context));
+                                                    return Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          'Saved',
+                                                          style: TextStyle(fontSize: 20),
+                                                        ),
+                                                        Icon(Icons.check_circle, size: 50, color: Theme.of(context).colorScheme.primary),
+                                                      ],
+                                                    );
                                                   }
                                                 } else {
                                                   print("future running");

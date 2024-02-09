@@ -64,10 +64,10 @@ class FirebaseUploader {
         );
         ImageFile output = await compressInQueue(ImageFileConfiguration(input: input));
 
-        print("Image $i compressed to size ${output.rawBytes.length} bytes");
+        print("Image [$i] compressed to size ${output.rawBytes.length} bytes");
 
         // Upload the compressed image to Firebase Storage and get the URL
-        Reference ref = storage.ref().child('phoneId/$activityName/$uploadTime/$i.jpg');
+        Reference ref = storage.ref().child('$activityName/$uploadTime/$i.jpg');
         await ref.putData(output.rawBytes); // Upload compressed image data
         String imageUrl = await ref.getDownloadURL(); // Get the URL of the uploaded image
         imageUrls.add(imageUrl); // Add the URL to the list
@@ -107,7 +107,7 @@ class FirebaseUploader {
       if (!activityDoc.exists) {
         print("Setting for the first time");
         await userDoc.collection('activities').doc(activityName).set({
-          'isCountBased': false,
+          'isCountBased': activity.isCountBased,
           'shouldAppear': true,
           'name': activityName,
           'totalRecords': 0,
