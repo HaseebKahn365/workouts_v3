@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
-import 'package:workouts_v3/home_screen.dart';
 
 class ActivityScreen extends ConsumerStatefulWidget {
   final Activity activity;

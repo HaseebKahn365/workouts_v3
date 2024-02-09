@@ -42,13 +42,13 @@ class Overall extends StatelessWidget {
 }
 
 Map<String, int> devData = {
-  'Mon': 3,
-  'Tue': 2,
-  'Wed': 1,
-  'Thu': 2,
-  'Fri': 3,
-  'Sat': 6,
-  'Sun': 1,
+  '7': 3,
+  '6': 2,
+  '5': 1,
+  '4': 2,
+  '3': 3,
+  '2': 6,
+  '1': 1,
 };
 
 class LineChartWidget extends StatelessWidget {
