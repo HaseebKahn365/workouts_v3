@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,17 @@ import 'package:workouts_v3/overall_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  //test printing the map of strin and list of string
+  Map<String, List<String>> testMap = {
+    "test": ["test1", "test2", "test3"]
+  };
+  print(testMap); //{test: [test1, test2, test3]}
+
+  //running activity conversion test from firestore document:
+  // await activityTest();
+
+  //running the activity conversioon test for all the activitiese iin the collection fo the user:
+  // await allActivitiesTest();
 
   runApp(
     ProviderScope(
