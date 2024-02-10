@@ -46,7 +46,6 @@ dependencies:
   intl: ^0.18.1
   cloud_functions: ^4.3.4
   path_provider: ^2.1.2
-  fl_chart: ^0.66.0
   shared_preferences: ^2.2.0
   introduction_screen: ^3.1.12
   csv: ^5.1.1
@@ -54,6 +53,7 @@ dependencies:
   flutter_riverpod: ^2.4.9
   image_compression: ^1.0.4
   flutter_native_image: ^0.0.6+1
+  fl_chart: ^0.66.1
 
 
 

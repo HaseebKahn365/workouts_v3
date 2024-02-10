@@ -406,14 +406,29 @@ class _WrokoutsState extends State<Wrokouts> {
                                   //create a save button with rounded border outline
                                   ElevatedButton(
                                     onPressed: () {
-                                      setState(() {
-                                        phoneId = null;
-                                        SharedPreferences.getInstance().then((prefs) {
-                                          prefs.remove('phoneId');
-                                        });
+                                      SharedPreferences.getInstance().then((prefs) {
+                                        prefs.remove('phoneId');
                                       });
-                                      print("The user has been logged out");
+                                      //close the drawer
                                       Navigator.of(context).pop();
+                                      Navigator.of(context).pop();
+
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                        content: Column(
+                                          children: [
+                                            Text("Remember your name: $phoneId"),
+                                            const SizedBox(height: 10),
+                                            Text("Please restart the app", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                            const SizedBox(height: 10),
+                                            Icon(
+                                              FluentIcons.info_24_filled,
+                                              color: Theme.of(context).colorScheme.inversePrimary,
+                                              size: 50,
+                                            )
+                                          ],
+                                        ),
+                                        duration: const Duration(seconds: 3),
+                                      ));
                                     },
                                     child: const Text('Logout'),
                                     //make elevation 0 and rounded corners
@@ -422,7 +437,7 @@ class _WrokoutsState extends State<Wrokouts> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(1),
+                                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
                                     ),
                                   ),
                                 ],

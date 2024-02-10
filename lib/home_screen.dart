@@ -1,10 +1,12 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_function_declarations_over_variables
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
+import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
 import 'package:workouts_v3/screens/activity_screen.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
@@ -149,7 +151,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       ),
                                     );
                                   } else {
-                                    parent.addActivity(activityItem);
+                                    print("uploading the activity: $activityItem");
+                                    final tempUploader = FirebaseUploader(
+                                      activity: activityItem,
+                                      imageFileList: [],
+                                      recordCount: 0,
+                                      tags: [],
+                                      uploadTime: DateTime.now(),
+                                    );
+                                    //using a snackbar with a future builder to show the progress of the upload
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: FutureBuilder(
+                                          future: tempUploader.uploadTheRecord(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState == ConnectionState.done) {
+                                              if (snapshot.data == true) {
+                                                parent.addActivity(activityItem);
+                                                callableHomeRefresh();
+                                                return const Text("Activity Added!");
+                                              } else {
+                                                return const Text("Error: Activity not added!");
+                                              }
+                                            } else {
+                                              return const Text("Uploading...");
+                                            }
+                                          },
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
                                   }
 
                                   Navigator.of(context).pop();
