@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:workouts_v3/main.dart';
 
 //this application is primarily connected to the firebase for reading and writing data.
 //activites are tracked by the user and stored in the cloud firestore in the following manner:
@@ -159,10 +161,29 @@ class Parent extends ChangeNotifier {
   //there is only one parent object in the application that will consist of a list of Activity objects
   List<Activity> activities = [];
   int totalActivities = 0;
+  bool isUpdate = true;
   // method to add an activity to the list
   void addActivity(Activity activity) {
-    activities.add(activity);
-    totalActivities++;
+    isUpdate = true;
+    notifyListeners();
+  }
+
+  Future<List<Activity>> AllDocsToMap() async {
+    List<Activity> activities = [];
+    await FirebaseFirestore.instance.collection('users').doc(phoneId).collection('activities').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        activities.add(Activity.fromFirestore(doc.data() as Map<String, dynamic>));
+      });
+    });
+
+    return activities;
+  }
+
+  Future<void> fetchActivities() async {
+    if (isUpdate == false) return;
+    activities = await AllDocsToMap();
+    totalActivities = activities.length;
+    isUpdate = false;
     notifyListeners();
   }
 }

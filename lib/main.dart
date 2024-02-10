@@ -14,17 +14,6 @@ import 'package:workouts_v3/overall_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //test printing the map of strin and list of string
-  Map<String, List<String>> testMap = {
-    "test": ["test1", "test2", "test3"]
-  };
-  print(testMap); //{test: [test1, test2, test3]}
-
-  //running activity conversion test from firestore document:
-  // await activityTest();
-
-  //running the activity conversioon test for all the activitiese iin the collection fo the user:
-  // await allActivitiesTest();
 
   runApp(
     ProviderScope(
@@ -784,22 +773,20 @@ class _WrokoutsState extends State<Wrokouts> {
       theme: themeData,
       home: LayoutBuilder(builder: (context, constraints) {
         if (constraints.maxWidth < narrowScreenWidthThreshold) {
-          return
-              //check if user is null then take to startup screen other wise load the app
-              phoneId == null
-                  ? StartUp()
-                  : Scaffold(
-                      drawer: returnDrawer(),
-                      appBar: createAppBar(),
-                      body: Row(children: <Widget>[
-                        createScreenFor(screenIndex, false),
-                      ]),
-                      bottomNavigationBar: NavigationBars(
-                        onSelectItem: handleScreenChanged,
-                        selectedIndex: screenIndex,
-                        isExampleBar: false,
-                      ),
-                    );
+          return phoneId == null
+              ? StartUp()
+              : Scaffold(
+                  drawer: returnDrawer(),
+                  appBar: createAppBar(),
+                  body: Row(children: <Widget>[
+                    createScreenFor(screenIndex, false),
+                  ]),
+                  bottomNavigationBar: NavigationBars(
+                    onSelectItem: handleScreenChanged,
+                    selectedIndex: screenIndex,
+                    isExampleBar: false,
+                  ),
+                );
         } else {
           return phoneId == null
               ? StartUp()

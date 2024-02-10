@@ -22,7 +22,14 @@ class HomeScreen extends ConsumerStatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+//download all the documents from the activities collection under the user document named as phoneId
+
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   int selectedOption = 1;
 
   Widget build(BuildContext context) {
@@ -31,6 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       setState(() {});
     };
     final parent = ref.watch(parentProvider);
+    parent.fetchActivities();
     return Expanded(
       child: Align(
         alignment: Alignment.topCenter,
