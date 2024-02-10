@@ -165,6 +165,7 @@ class Parent extends ChangeNotifier {
   // method to add an activity to the list
   void addActivity(Activity activity) {
     isUpdate = true;
+
     notifyListeners();
   }
 
@@ -184,6 +185,7 @@ class Parent extends ChangeNotifier {
     activities = await AllDocsToMap();
     totalActivities = activities.length;
     isUpdate = false;
+    print(activities[0]);
     notifyListeners();
   }
 }

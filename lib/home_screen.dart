@@ -1,6 +1,5 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_function_declarations_over_variables
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -58,6 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   onPressed: () {
                     //an alert dialogye box asking for the type and name of the category.
                     //the name is taken using text field and the type is taken using radio buttons
+                    bool isCreatedPressed = false;
 
                     showDialog(
                       context: context,
@@ -135,55 +135,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 child: const Text("Cancel"),
                               ),
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
+                                  //disable the button
                                   //create a Category Object and add it to the list
-                                  final activityItem = Activity(
-                                    isCountBased: selectedOption == 1 ? false : true,
-                                    name: _textFieldController.text,
-                                  );
+                                  if (!isCreatedPressed) {
+                                    isCreatedPressed = true;
+                                    final activityItem = Activity(
+                                      isCountBased: selectedOption == 1 ? false : true,
+                                      name: _textFieldController.text,
+                                    );
 
-                                  if (_textFieldController.text.trim().isEmpty) {
-                                    //show snakbar that activity was not added.
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Error: Activity name empty!"),
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                  } else {
-                                    print("uploading the activity: $activityItem");
-                                    final tempUploader = FirebaseUploader(
-                                      activity: activityItem,
-                                      imageFileList: [],
-                                      recordCount: 0,
-                                      tags: [],
-                                      uploadTime: DateTime.now(),
-                                    );
-                                    //using a snackbar with a future builder to show the progress of the upload
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: FutureBuilder(
-                                          future: tempUploader.uploadTheRecord(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.connectionState == ConnectionState.done) {
-                                              if (snapshot.data == true) {
-                                                parent.addActivity(activityItem);
-                                                callableHomeRefresh();
-                                                return const Text("Activity Added!");
-                                              } else {
-                                                return const Text("Error: Activity not added!");
-                                              }
-                                            } else {
-                                              return const Text("Uploading...");
-                                            }
-                                          },
+                                    if (_textFieldController.text.trim().isEmpty) {
+                                      //show snakbar that activity was not added.
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Error: Activity name empty!"),
+                                          duration: Duration(seconds: 2),
                                         ),
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
+                                      );
+                                    } else {
+                                      print("uploading the activity: $activityItem");
+                                      final tempUploader = FirebaseUploader(
+                                        activity: activityItem,
+                                        imageFileList: [],
+                                        recordCount: 0,
+                                        tags: [],
+                                        uploadTime: DateTime.now(),
+                                      );
 
-                                  Navigator.of(context).pop();
+                                      bool uploadSuccess = await tempUploader.uploadTheRecord();
+
+                                      // Show the appropriate SnackBar based on the upload result
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(uploadSuccess ? "Activity Added!" : "Error: Activity not added!"),
+                                          duration: Duration(seconds: 1),
+                                        ),
+                                      );
+
+                                      // If upload was successful, update the state
+                                      if (uploadSuccess) {
+                                        setState(() {
+                                          parent.addActivity(activityItem);
+                                          callableHomeRefresh();
+                                        });
+                                      }
+                                    }
+
+                                    Navigator.of(context).pop();
+                                  }
                                 },
                                 child: const Text("Create"),
                               ),

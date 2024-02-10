@@ -3,13 +3,22 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workouts_v3/home_screen.dart';
 
-class Overall extends StatelessWidget {
+class Overall extends ConsumerStatefulWidget {
   const Overall({super.key});
 
   @override
+  _OverallState createState() => _OverallState();
+}
+
+class _OverallState extends ConsumerState<Overall> {
+  @override
+
+  //creating a parent instance
   Widget build(BuildContext context) {
-    // Compare this snippet from lib\main.dart:
+    final parent = ref.read(parentProvider);
 
     return Expanded(
       child: Padding(
@@ -27,7 +36,17 @@ class Overall extends StatelessWidget {
 
             Padding(
               padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-              child: LineChartWidget().animate().slide(
+              child: LineChartWidget(
+                devData: {
+                  'Mon': 5,
+                  'Tue': 6,
+                  'Wed': 7,
+                  'Thu': 8,
+                  'Fri': 9,
+                  'Sat': 10,
+                  'Sun': 11,
+                },
+              ).animate().slide(
                     duration: const Duration(milliseconds: 500),
                     begin: const Offset(0, 1),
                     end: const Offset(0, 0),
@@ -41,18 +60,9 @@ class Overall extends StatelessWidget {
   }
 }
 
-Map<String, int> devData = {
-  '7': 3,
-  '6': 2,
-  '5': 1,
-  '4': 2,
-  '3': 3,
-  '2': 6,
-  '1': 1,
-};
-
 class LineChartWidget extends StatelessWidget {
-  const LineChartWidget({super.key});
+  LineChartWidget({super.key, required this.devData});
+  final Map<String, int> devData;
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
+import 'package:workouts_v3/home_screen.dart';
 
 const Widget divider = SizedBox(height: 10);
 
@@ -18,20 +21,64 @@ List<DemoCategoryData> demoCategoryData = [
   DemoCategoryData(name: 'Programming', count: 24),
 ];
 
-class Today extends StatefulWidget {
+//now we will replace the above list with the actual data from the parent
+
+class Today extends ConsumerStatefulWidget {
   const Today({super.key});
 
   @override
-  State<Today> createState() => _TodayState();
+  @override
+  _TodayState createState() => _TodayState();
 }
 
-class _TodayState extends State<Today> {
+class _TodayState extends ConsumerState<Today> {
+  @override
   List<ProgressObjects> progressObjects = [
     ProgressObjects(name: 'math', progress: 24, probability: 0.6),
     ProgressObjects(name: 'science', progress: 12, probability: 0.3),
     ProgressObjects(name: 'computer science', progress: 6, probability: 0.1),
-    ProgressObjects(name: 'homework', progress: 2, probability: 0.05),
+    ProgressObjects(name: 'homework', progress: 2, probability: 0.5),
   ];
+
+  //now creating a list of progress objects from the activities in the parent object:
+  // late List<ProgressObjects> progressObjects;
+
+  /*the parent object contains the list of all the activities. we should look throw all the activites and find the activities whose datedRecs contains at least one key with Date matching today's day
+    the following are the members of activity object
+    late bool isCountBased;
+  bool shouldAppear = true; //used to remove the activity from the list and firestore just by setting it to false
+  DateTime createdOn = DateTime.now();
+  int totalRecords = 0;
+  late String name;
+  Map<DateTime, int> datedRecs = {};
+  Map<String, List<String>> imgMapArray = {};
+  Map<String, List<String>> tagMapArray = {};
+
+  
+
+
+
+    
+    */
+  List<Activity> getOnlyTodaysActivities(List<Activity> allActivities) {
+    List<Activity> todayActivities = [];
+
+    DateTime today = DateTime.now();
+    DateTime todayDate = DateTime(today.year, today.month, today.day);
+
+    for (Activity activity in allActivities) {
+      //check if the day and year matches
+      activity.datedRecs.forEach((key, value) {
+        if (key.day == today.day && key.year == today.year) {
+          todayActivities.add(activity);
+        }
+      });
+    }
+
+    return todayActivities;
+  }
+
+  late Parent parent;
 
   int getMaxProgress() {
     int max = 0;
@@ -55,19 +102,17 @@ class _TodayState extends State<Today> {
 
   @override
   Widget build(BuildContext context) {
-    // Color selectedColor = Theme.of(context).primaryColor;
-    // ThemeData lightTheme = ThemeData(colorSchemeSeed: selectedColor, brightness: Brightness.light);
-    // ThemeData darkTheme = ThemeData(colorSchemeSeed: selectedColor, brightness: Brightness.dark);
+    parent = ref.read(parentProvider);
+
+    getOnlyTodaysActivities(parent.activities).forEach((element) {
+      print("\n\n+${element.toString()}");
+    });
 
     return Expanded(
         child: ListView(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       children: [
         const SizedBox(height: 16),
-        Text(' Today\'s Activities ', style: Theme.of(context).textTheme.headlineMedium).animate().scale(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            ),
 
         //here we will use the spread operator on the list of progress objects
         //to create a list of widgets
@@ -82,7 +127,7 @@ class _TodayState extends State<Today> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
                   child: Column(
                     children: [
-                      Text(progressObject.name, style: Theme.of(context).textTheme.headlineSmall),
+                      Text(progressObject.name + "\n", style: Theme.of(context).textTheme.headlineSmall),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -91,25 +136,6 @@ class _TodayState extends State<Today> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      LinearProgressIndicator(
-                        borderRadius: BorderRadius.circular(10),
-                        value: progressObject.probability,
-                        minHeight: 10,
-                        backgroundColor: Theme.of(context).colorScheme.surface,
-                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimaryContainer),
-                      ),
-
-                      //doing the same for probability
-
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Probability', style: Theme.of(context).textTheme.bodyText1),
-                          Text('${(progressObject.probability * 100).toStringAsFixed(0)}%'),
-                        ],
-                      ),
-
                       LinearProgressIndicator(
                         borderRadius: BorderRadius.circular(10),
                         value: progressObject.probability,
@@ -163,15 +189,6 @@ class PiechartWidget extends StatelessWidget {
             centerSpaceRadius: 50, // Adjust the size of the center space
           ),
         ));
-  }
-}
-
-class HorizontalBars extends StatelessWidget {
-  const HorizontalBars({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }
 
