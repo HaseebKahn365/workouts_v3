@@ -12,6 +12,7 @@ import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
 import 'package:workouts_v3/overall_screen.dart';
 
+final parentProvider = ChangeNotifierProvider((ref) => Parent());
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -780,7 +781,6 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
     );
   }
 
-  final parentProvider = ChangeNotifierProvider((ref) => Parent());
   @override
   Widget build(BuildContext context) {
     final parent = ref.watch(parentProvider);
