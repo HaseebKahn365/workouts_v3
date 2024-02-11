@@ -12,13 +12,13 @@ const Widget divider = SizedBox(height: 10);
 const double narrowScreenWidthThreshold = 400;
 
 //create a list of DemoCategoryData objects
-List<DemoCategoryData> demoCategoryData = [
-  DemoCategoryData(name: 'Workout', count: 24),
-  DemoCategoryData(name: 'Coding', count: 12),
-  DemoCategoryData(name: 'Reading', count: 6),
-  DemoCategoryData(name: 'Meditation', count: 2),
-  DemoCategoryData(name: 'Programming', count: 24),
-];
+// List<DemoCategoryData> demoCategoryData = [
+//   DemoCategoryData(name: 'Workout', count: 24),
+//   DemoCategoryData(name: 'Coding', count: 12),
+//   DemoCategoryData(name: 'Reading', count: 6),
+//   DemoCategoryData(name: 'Meditation', count: 2),
+//   DemoCategoryData(name: 'Programming', count: 24),
+// ];
 
 //now we will replace the above list with the actual data from the parent
 
@@ -39,21 +39,7 @@ class _TodayState extends ConsumerState<Today> {
   //   ProgressObjects(name: 'homework', progress: 2, probability: 0.5),
   // ];
 
-  //now creating a list of progress objects from the activities in the parent object:
   List<ProgressObjects> progressObjects = [];
-
-  /*the parent object contains the list of all the activities. we should look throw all the activites and find the activities whose datedRecs contains at least one key with Date matching today's day
-    the following are the members of activity object
-    late bool isCountBased;
-  bool shouldAppear = true; //used to remove the activity from the list and firestore just by setting it to false
-  DateTime createdOn = DateTime.now();
-  int totalRecords = 0;
-  late String name;
-  Map<DateTime, int> datedRecs = {};
-  Map<String, List<String>> imgMapArray = {};
-  Map<String, List<String>> tagMapArray = {};
-    
-    */
 
   //only today's activities:
   List<Activity> todayActivities = [];
@@ -116,31 +102,49 @@ class _TodayState extends ConsumerState<Today> {
     return temp;
   }
 
-  late Parent parent;
+  late final parent = widget.parent;
+
+  /*
+  now we will get the acutal data for the pie chart.
+  for each activity in the todayActivities list, we will get only the activites which is time based. in this list we will get the total time spent on each activity. we will store the name of the activity and the total time spent on it in a list of DemoCategoryData objects.
+   */
+
+  List<DemoCategoryData> getDemoCategoryDataForTime() {
+    List<DemoCategoryData> temp = [];
+    for (Activity activity in todayActivities) {
+      if (activity.isCountBased == false) {
+        int totalTime = 0;
+        activity.datedRecs.forEach((key, value) {
+          //only if the year and day matches
+          if (key.day == DateTime.now().day && key.year == DateTime.now().year) {
+            totalTime += value;
+          }
+        });
+        temp.add(DemoCategoryData(name: activity.name, count: totalTime));
+      }
+    }
+    return temp;
+  }
+
+  late List<DemoCategoryData> demoCategoryDataTime;
+
+  void initState() {
+    super.initState();
+    parent.forceDownload();
+    todayActivities = getOnlyTodaysActivities(parent.activities);
+    progressObjects = createProgressObjects();
+    demoCategoryDataTime = getDemoCategoryDataForTime();
+    // print("Printing demoCategoryDataTime\n" + demoCategoryDataTime.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
-    parent = widget.parent;
-    parent.fetchActivities();
-    todayActivities = getOnlyTodaysActivities(parent.activities);
-    progressObjects = createProgressObjects();
     // print("progress objects: " + progressObjects.toString());
     return Expanded(
         child: ListView(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       children: [
         const SizedBox(height: 16),
-
-        //elevated button to refresh
-        ElevatedButton(
-          onPressed: () async {
-            await parent.fetchActivities();
-          },
-          child: const Text('Refresh'),
-        ),
-
-        //here we will use the spread operator on the list of progress objects
-        //to create a list of widgets
         ...progressObjects.map((progressObject) {
           return Column(
             children: [
@@ -156,8 +160,8 @@ class _TodayState extends ConsumerState<Today> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(progressObject.name, style: Theme.of(context).textTheme.bodyText1),
-                          // Text('${progressObject.progress} / ${getMaxProgress()}'),
+                          Text("Recent: ${progressObject.todaysRecent}"),
+                          Text('Best: ${progressObject.bestValue}'),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -181,7 +185,7 @@ class _TodayState extends ConsumerState<Today> {
             ],
           );
         }),
-        PiechartWidget(demoCategoryData: demoCategoryData),
+        PiechartWidget(demoCategoryData: demoCategoryDataTime),
       ],
     ));
   }
@@ -197,24 +201,31 @@ class PiechartWidget extends StatelessWidget {
         height: 350,
         width: 200,
         color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
-        child: PieChart(
-          PieChartData(
-            sections: demoCategoryData.map((demoCategoryData) {
-              return PieChartSectionData(
-                color: Theme.of(context).colorScheme.secondaryContainer,
-                value: demoCategoryData.count.toDouble(),
-                title: demoCategoryData.name,
-                radius: 100,
-                titleStyle: TextStyle(
-                  fontSize: 10, // Adjust the font size as needed
-                  color: Theme.of(context).colorScheme.primary, // Customize the color
+        child: (demoCategoryData.isEmpty)
+            ? Center(
+                child: Text(
+                  "No time based activities today",
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-              );
-            }).toList(),
-            sectionsSpace: 0.5, // You can adjust the space between sections
-            centerSpaceRadius: 50, // Adjust the size of the center space
-          ),
-        ));
+              )
+            : PieChart(
+                PieChartData(
+                  sections: demoCategoryData.map((demoCategoryData) {
+                    return PieChartSectionData(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      value: demoCategoryData.count.toDouble(),
+                      title: demoCategoryData.name + "\n(" + demoCategoryData.count.toString() + " mins)",
+                      radius: 100,
+                      titleStyle: TextStyle(
+                        fontSize: 10, // Adjust the font size as needed
+                        color: Theme.of(context).colorScheme.primary, // Customize the color
+                      ),
+                    );
+                  }).toList(),
+                  sectionsSpace: 0.5, // You can adjust the space between sections
+                  centerSpaceRadius: 50, // Adjust the size of the center space
+                ),
+              ));
   }
 }
 
@@ -232,4 +243,9 @@ class DemoCategoryData {
   final int count;
 
   const DemoCategoryData({required this.name, required this.count});
+
+  @override
+  String toString() {
+    return 'DemoCategoryData{name: $name, count: $count}';
+  }
 }

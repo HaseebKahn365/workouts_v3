@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
-import 'package:workouts_v3/home_screen.dart';
 
 class Overall extends ConsumerStatefulWidget {
   final Parent parent;
@@ -20,7 +19,7 @@ class _OverallState extends ConsumerState<Overall> {
 
   //creating a parent instance
   Widget build(BuildContext context) {
-    final parent = widget.parent;
+    // final parent = widget.parent;
 
     return Expanded(
       child: Padding(
