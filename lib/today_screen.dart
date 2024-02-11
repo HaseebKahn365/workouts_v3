@@ -41,7 +41,7 @@ class _TodayState extends ConsumerState<Today> {
   // ];
 
   //now creating a list of progress objects from the activities in the parent object:
-  late List<ProgressObjects> progressObjects;
+  late List<ProgressObjects> progressObjects = [];
 
   /*the parent object contains the list of all the activities. we should look throw all the activites and find the activities whose datedRecs contains at least one key with Date matching today's day
     the following are the members of activity object
@@ -53,72 +53,67 @@ class _TodayState extends ConsumerState<Today> {
   Map<DateTime, int> datedRecs = {};
   Map<String, List<String>> imgMapArray = {};
   Map<String, List<String>> tagMapArray = {};
-
-  
-
-
-
     
     */
+
+  //only today's activities:
+  List<Activity> todayActivities = [];
+
   List<Activity> getOnlyTodaysActivities(List<Activity> allActivities) {
     List<Activity> todayActivities = [];
 
     DateTime today = DateTime.now();
-    DateTime todayDate = DateTime(today.year, today.month, today.day);
 
     for (Activity activity in allActivities) {
       //check if the day and year matches
       activity.datedRecs.forEach((key, value) {
         if (key.day == today.day && key.year == today.year) {
-          todayActivities.add(activity);
+          if (!todayActivities.contains(activity)) {
+            todayActivities.add(activity);
+          }
         }
       });
     }
+    print("length of found" + todayActivities.length.toString());
+    print(todayActivities);
 
     return todayActivities;
   }
 
-  //converting activities into progress objects
-  //the progress objects should first filter all the records whose dates match with todays date then in these records we find best value in all the map of data recs
-  //we use the best value as to pass to the argument of the 
-  /*
-   String name; //activity name
-  int progress; //best value
-  double probability;// today's best value
+  //finding the best 1 time value for the activity in the list of today's activities.
+  int getBestValue(Activity activity) {
+    int bestValue = 0;
+    activity.datedRecs.forEach((key, value) {
+      if (value > bestValue) {
+        bestValue = value;
+      }
+    });
+    return bestValue;
+  }
 
-  the created progress object is added to the list of the progressObjects.
-   */
+  //for each activity in today's activities, we will create a progress object and add it to the list of progress objects
+  List<ProgressObjects> createProgressObjects() {
+    List<ProgressObjects> temp = [];
+    for (Activity activity in todayActivities) {
+      int bestValue = getBestValue(activity);
+      print("best value for " + activity.name + " is " + bestValue.toString());
+      //last value in the datedRecs
+      int todaysRecent = activity.datedRecs[activity.datedRecs.keys.last]!;
+      print("todays recent for " + activity.name + " is " + todaysRecent.toString());
 
-  
+      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent));
+    }
+    return temp;
+  }
 
   late Parent parent;
 
-  int getMaxProgress() {
-    int max = 0;
-    for (int i = 0; i < progressObjects.length; i++) {
-      if (progressObjects[i].progress > max) {
-        max = progressObjects[i].progress;
-      }
-    }
-    return max;
-  }
-
-  double getMaxProbability() {
-    double max = 0;
-    for (int i = 0; i < progressObjects.length; i++) {
-      if (progressObjects[i].probability > max) {
-        max = progressObjects[i].probability;
-      }
-    }
-    return max;
-  }
-
   @override
   Widget build(BuildContext context) {
-    parent = ref.read(parentProvider);
-
-   
-
+    parent = ref.watch(parentProvider);
+    todayActivities = getOnlyTodaysActivities(parent.activities);
+    progressObjects = createProgressObjects();
+    // print("progress objects: " + progressObjects.toString());
     return Expanded(
         child: ListView(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -143,13 +138,14 @@ class _TodayState extends ConsumerState<Today> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(progressObject.name, style: Theme.of(context).textTheme.bodyText1),
-                          Text('${progressObject.progress} / ${getMaxProgress()}'),
+                          // Text('${progressObject.progress} / ${getMaxProgress()}'),
                         ],
                       ),
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         borderRadius: BorderRadius.circular(10),
-                        value: progressObject.probability,
+                        //check for /0 error by making the min best value 1
+                        value: progressObject.todaysRecent / (progressObject.bestValue == 0 ? 1 : progressObject.bestValue),
                         minHeight: 10,
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimaryContainer),
@@ -206,10 +202,10 @@ class PiechartWidget extends StatelessWidget {
 //this is just a temporary class for the UI
 class ProgressObjects {
   String name;
-  int progress;
-  double probability;
+  int bestValue;
+  int todaysRecent;
 
-  ProgressObjects({required this.name, required this.progress, required this.probability});
+  ProgressObjects({required this.name, required this.bestValue, required this.todaysRecent});
 }
 
 class DemoCategoryData {
