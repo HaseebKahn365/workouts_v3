@@ -33,15 +33,15 @@ class Today extends ConsumerStatefulWidget {
 
 class _TodayState extends ConsumerState<Today> {
   @override
-  List<ProgressObjects> progressObjects = [
-    ProgressObjects(name: 'math', progress: 24, probability: 0.6),
-    ProgressObjects(name: 'science', progress: 12, probability: 0.3),
-    ProgressObjects(name: 'computer science', progress: 6, probability: 0.1),
-    ProgressObjects(name: 'homework', progress: 2, probability: 0.5),
-  ];
+  // List<ProgressObjects> progressObjects = [
+  //   ProgressObjects(name: 'math', progress: 24, probability: 0.6),
+  //   ProgressObjects(name: 'science', progress: 12, probability: 0.3),
+  //   ProgressObjects(name: 'computer science', progress: 6, probability: 0.1),
+  //   ProgressObjects(name: 'homework', progress: 2, probability: 0.5),
+  // ];
 
   //now creating a list of progress objects from the activities in the parent object:
-  // late List<ProgressObjects> progressObjects;
+  late List<ProgressObjects> progressObjects;
 
   /*the parent object contains the list of all the activities. we should look throw all the activites and find the activities whose datedRecs contains at least one key with Date matching today's day
     the following are the members of activity object
@@ -78,6 +78,19 @@ class _TodayState extends ConsumerState<Today> {
     return todayActivities;
   }
 
+  //converting activities into progress objects
+  //the progress objects should first filter all the records whose dates match with todays date then in these records we find best value in all the map of data recs
+  //we use the best value as to pass to the argument of the 
+  /*
+   String name; //activity name
+  int progress; //best value
+  double probability;// today's best value
+
+  the created progress object is added to the list of the progressObjects.
+   */
+
+  
+
   late Parent parent;
 
   int getMaxProgress() {
@@ -104,9 +117,7 @@ class _TodayState extends ConsumerState<Today> {
   Widget build(BuildContext context) {
     parent = ref.read(parentProvider);
 
-    getOnlyTodaysActivities(parent.activities).forEach((element) {
-      print("\n\n+${element.toString()}");
-    });
+   
 
     return Expanded(
         child: ListView(
