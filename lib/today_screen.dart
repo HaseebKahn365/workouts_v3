@@ -126,7 +126,25 @@ class _TodayState extends ConsumerState<Today> {
     return temp;
   }
 
+  List<DemoCategoryData> getDemoCategoryDataForCount() {
+    List<DemoCategoryData> temp = [];
+    for (Activity activity in todayActivities) {
+      if (activity.isCountBased == true) {
+        int totalCount = 0;
+        activity.datedRecs.forEach((key, value) {
+          //only if the year and day matches
+          if (key.day == DateTime.now().day && key.year == DateTime.now().year) {
+            totalCount += value;
+          }
+        });
+        temp.add(DemoCategoryData(name: activity.name, count: totalCount));
+      }
+    }
+    return temp;
+  }
+
   late List<DemoCategoryData> demoCategoryDataTime;
+  late List<DemoCategoryData> demoCategoryDataCount;
 
   void initState() {
     super.initState();
@@ -135,6 +153,7 @@ class _TodayState extends ConsumerState<Today> {
     progressObjects = createProgressObjects();
     demoCategoryDataTime = getDemoCategoryDataForTime();
     // print("Printing demoCategoryDataTime\n" + demoCategoryDataTime.toString());
+    demoCategoryDataCount = getDemoCategoryDataForCount();
   }
 
   @override
@@ -180,12 +199,11 @@ class _TodayState extends ConsumerState<Today> {
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.easeInOut,
                   ),
-
-              // Here we will have a pie chart to display the contribution to each category. ie. DemoCategoryData list
             ],
           );
         }),
-        PiechartWidget(demoCategoryData: demoCategoryDataTime),
+        PiechartWidget(demoCategoryData: demoCategoryDataTime, isCountBased: false),
+        PiechartWidget(demoCategoryData: demoCategoryDataCount),
       ],
     ));
   }
@@ -193,39 +211,41 @@ class _TodayState extends ConsumerState<Today> {
 
 class PiechartWidget extends StatelessWidget {
   final List<DemoCategoryData> demoCategoryData;
-  const PiechartWidget({super.key, required this.demoCategoryData});
+  final bool isCountBased;
+  const PiechartWidget({super.key, required this.demoCategoryData, this.isCountBased = true});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 350,
-        width: 200,
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
-        child: (demoCategoryData.isEmpty)
-            ? Center(
-                child: Text(
-                  "No time based activities today",
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-              )
-            : PieChart(
-                PieChartData(
-                  sections: demoCategoryData.map((demoCategoryData) {
-                    return PieChartSectionData(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      value: demoCategoryData.count.toDouble(),
-                      title: demoCategoryData.name + "\n(" + demoCategoryData.count.toString() + " mins)",
-                      radius: 100,
-                      titleStyle: TextStyle(
-                        fontSize: 10, // Adjust the font size as needed
-                        color: Theme.of(context).colorScheme.primary, // Customize the color
-                      ),
-                    );
-                  }).toList(),
-                  sectionsSpace: 0.5, // You can adjust the space between sections
-                  centerSpaceRadius: 50, // Adjust the size of the center space
-                ),
-              ));
+    return (demoCategoryData.isEmpty)
+        ? Center(
+            child: Text("No " + (isCountBased ? "count-based" : "time-based") + " Activities Today! 🥺",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 20,
+                )),
+          )
+        : Container(
+            height: 350,
+            width: 200,
+            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
+            child: PieChart(
+              PieChartData(
+                sections: demoCategoryData.map((demoCategoryData) {
+                  return PieChartSectionData(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    value: demoCategoryData.count.toDouble(),
+                    title: demoCategoryData.name + "\n(" + demoCategoryData.count.toString() + " mins)",
+                    radius: 100,
+                    titleStyle: TextStyle(
+                      fontSize: 10, // Adjust the font size as needed
+                      color: Theme.of(context).colorScheme.primary, // Customize the color
+                    ),
+                  );
+                }).toList(),
+                sectionsSpace: 0.5, // You can adjust the space between sections
+                centerSpaceRadius: 50, // Adjust the size of the center space
+              ),
+            ));
   }
 }
 
