@@ -10,12 +10,11 @@ import 'package:workouts_v3/screens/activity_screen.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
 
-final parentProvider = ChangeNotifierProvider((ref) => Parent());
-
 //creating instance of the DEVLogs
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({Key? key, required this.showNavBottomBar}) : super(key: key);
+  final Parent parent;
+  const HomeScreen({Key? key, required this.showNavBottomBar, required this.parent}) : super(key: key);
 
   final bool showNavBottomBar;
 
@@ -38,7 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       print("Home Refreshed");
       setState(() {});
     };
-    final parent = ref.watch(parentProvider);
+    final parent = widget.parent;
     parent.fetchActivities();
     return Expanded(
       child: Align(

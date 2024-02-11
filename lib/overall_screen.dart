@@ -4,10 +4,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/home_screen.dart';
 
 class Overall extends ConsumerStatefulWidget {
-  const Overall({super.key});
+  final Parent parent;
+  Overall({super.key, required this.parent});
 
   @override
   _OverallState createState() => _OverallState();
@@ -18,7 +20,7 @@ class _OverallState extends ConsumerState<Overall> {
 
   //creating a parent instance
   Widget build(BuildContext context) {
-    final parent = ref.read(parentProvider);
+    final parent = widget.parent;
 
     return Expanded(
       child: Padding(

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/today_screen.dart';
 import 'package:workouts_v3/home_screen.dart';
 import 'package:workouts_v3/firebase_options.dart';
@@ -22,11 +23,11 @@ Future<void> main() async {
   );
 }
 
-class Wrokouts extends StatefulWidget {
+class Wrokouts extends ConsumerStatefulWidget {
   const Wrokouts({super.key});
 
   @override
-  State<Wrokouts> createState() => _WrokoutsState();
+  _WrokoutsState createState() => _WrokoutsState();
 }
 
 // NavigationRail shows if the screen width is greater or equal to
@@ -39,7 +40,7 @@ const List<String> colorText = <String>["M3 Baseline", "Blue", "Teal", "Green", 
 
 String? phoneId;
 
-class _WrokoutsState extends State<Wrokouts> {
+class _WrokoutsState extends ConsumerState<Wrokouts> {
   bool useMaterial3 = true;
   bool useLightMode = true;
   int colorSelected = 0;
@@ -495,17 +496,17 @@ class _WrokoutsState extends State<Wrokouts> {
     });
   }
 
-  Widget createScreenFor(int screenIndex, bool showNavBarExample) {
+  Widget createScreenFor(int screenIndex, bool showNavBarExample, Parent parent) {
     switch (screenIndex) {
       case 0:
-        return HomeScreen(showNavBottomBar: showNavBarExample);
+        return HomeScreen(showNavBottomBar: showNavBarExample, parent: parent);
       case 1:
-        return const Today();
+        return Today(parent: parent);
       case 2:
-        return const Overall();
+        return Overall(parent: parent);
 
       default:
-        return HomeScreen(showNavBottomBar: showNavBarExample);
+        return HomeScreen(showNavBottomBar: showNavBarExample, parent: parent);
     }
   }
 
@@ -779,8 +780,10 @@ class _WrokoutsState extends State<Wrokouts> {
     );
   }
 
+  final parentProvider = ChangeNotifierProvider((ref) => Parent());
   @override
   Widget build(BuildContext context) {
+    final parent = ref.watch(parentProvider);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Workouts Project V3',
@@ -794,7 +797,7 @@ class _WrokoutsState extends State<Wrokouts> {
                   drawer: returnDrawer(),
                   appBar: createAppBar(),
                   body: Row(children: <Widget>[
-                    createScreenFor(screenIndex, false),
+                    createScreenFor(screenIndex, false, parent),
                   ]),
                   bottomNavigationBar: NavigationBars(
                     onSelectItem: handleScreenChanged,
@@ -815,7 +818,7 @@ class _WrokoutsState extends State<Wrokouts> {
                       children: <Widget>[
                         Padding(padding: const EdgeInsets.symmetric(horizontal: 5), child: NavigationRailSection(onSelectItem: handleScreenChanged, selectedIndex: screenIndex)),
                         const VerticalDivider(thickness: 1, width: 1),
-                        createScreenFor(screenIndex, true),
+                        createScreenFor(screenIndex, true, parent),
                       ],
                     ),
                   ),

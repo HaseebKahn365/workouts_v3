@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
-import 'package:workouts_v3/home_screen.dart';
 
 const Widget divider = SizedBox(height: 10);
 
@@ -24,7 +23,8 @@ List<DemoCategoryData> demoCategoryData = [
 //now we will replace the above list with the actual data from the parent
 
 class Today extends ConsumerStatefulWidget {
-  const Today({super.key});
+  final Parent parent;
+  Today({super.key, required this.parent});
 
   @override
   @override
@@ -32,7 +32,6 @@ class Today extends ConsumerStatefulWidget {
 }
 
 class _TodayState extends ConsumerState<Today> {
-  @override
   // List<ProgressObjects> progressObjects = [
   //   ProgressObjects(name: 'math', progress: 24, probability: 0.6),
   //   ProgressObjects(name: 'science', progress: 12, probability: 0.3),
@@ -41,7 +40,7 @@ class _TodayState extends ConsumerState<Today> {
   // ];
 
   //now creating a list of progress objects from the activities in the parent object:
-  late List<ProgressObjects> progressObjects = [];
+  List<ProgressObjects> progressObjects = [];
 
   /*the parent object contains the list of all the activities. we should look throw all the activites and find the activities whose datedRecs contains at least one key with Date matching today's day
     the following are the members of activity object
@@ -97,8 +96,19 @@ class _TodayState extends ConsumerState<Today> {
     for (Activity activity in todayActivities) {
       int bestValue = getBestValue(activity);
       print("best value for " + activity.name + " is " + bestValue.toString());
-      //last value in the datedRecs
-      int todaysRecent = activity.datedRecs[activity.datedRecs.keys.last]!;
+      //assign yesterday to the nearest date
+      DateTime nearestDate = DateTime.now().subtract(Duration(days: 1));
+      int todaysRecent = 0;
+      activity.datedRecs.forEach((key, value) {
+        if (nearestDate == DateTime.now().subtract(Duration(days: 1))) {
+          nearestDate = key;
+        } else if (key.isAfter(nearestDate)) {
+          nearestDate = key;
+        }
+      });
+
+      todaysRecent = activity.datedRecs[nearestDate] ?? 0;
+
       print("todays recent for " + activity.name + " is " + todaysRecent.toString());
 
       temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent));
@@ -110,7 +120,8 @@ class _TodayState extends ConsumerState<Today> {
 
   @override
   Widget build(BuildContext context) {
-    parent = ref.watch(parentProvider);
+    parent = widget.parent;
+    parent.fetchActivities();
     todayActivities = getOnlyTodaysActivities(parent.activities);
     progressObjects = createProgressObjects();
     // print("progress objects: " + progressObjects.toString());
@@ -119,6 +130,14 @@ class _TodayState extends ConsumerState<Today> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       children: [
         const SizedBox(height: 16),
+
+        //elevated button to refresh
+        ElevatedButton(
+          onPressed: () async {
+            await parent.fetchActivities();
+          },
+          child: const Text('Refresh'),
+        ),
 
         //here we will use the spread operator on the list of progress objects
         //to create a list of widgets
