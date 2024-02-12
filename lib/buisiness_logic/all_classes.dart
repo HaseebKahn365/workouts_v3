@@ -192,7 +192,7 @@ class Parent extends ChangeNotifier {
   Future<void> forceDownload() async {
     activities = await AllDocsToMap();
     totalActivities = activities.length;
-    isUpdate = false;
+    print(activities);
     print("activities downloaded forcefully");
   }
 }

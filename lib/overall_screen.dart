@@ -38,7 +38,7 @@ class _OverallState extends ConsumerState<Overall> {
             Padding(
               padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
               child: LineChartWidget(
-                devData: {
+                lineDataMap: {
                   'Mon': 5,
                   'Tue': 6,
                   'Wed': 7,
@@ -62,8 +62,8 @@ class _OverallState extends ConsumerState<Overall> {
 }
 
 class LineChartWidget extends StatelessWidget {
-  LineChartWidget({super.key, required this.devData});
-  final Map<String, int> devData;
+  LineChartWidget({super.key, required this.lineDataMap});
+  final Map<String, int> lineDataMap;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +84,7 @@ class LineChartWidget extends StatelessWidget {
                   interval: 1,
                   showTitles: true,
                   getTitlesWidget: (value, meta) => Text(
-                        devData.keys.toList()[value.toInt()],
+                        lineDataMap.keys.toList()[value.toInt()],
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -95,7 +95,7 @@ class LineChartWidget extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 //50% of the max in the map
-                interval: devData.values.reduce((value, element) => value > element ? value : element).toDouble() * 0.3,
+                interval: lineDataMap.values.reduce((value, element) => value > element ? value : element).toDouble() * 0.3,
                 getTitlesWidget: (value, meta) => Text(
                   value.toInt().toString(),
                   style: TextStyle(
@@ -124,7 +124,7 @@ class LineChartWidget extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
               spots: [
-                ...devData.entries.map((e) => FlSpot(devData.keys.toList().indexOf(e.key).toDouble(), e.value.toDouble())),
+                ...lineDataMap.entries.map((e) => FlSpot(lineDataMap.keys.toList().indexOf(e.key).toDouble(), e.value.toDouble())),
               ],
               isCurved: true,
               barWidth: 5,
@@ -146,7 +146,7 @@ class LineChartWidget extends StatelessWidget {
             ),
           ],
           // find the max value in the map and + 5 to it
-          maxY: devData.values.reduce((value, element) => value > element ? value : element).toDouble() + 1,
+          maxY: lineDataMap.values.reduce((value, element) => value > element ? value : element).toDouble() + 1,
           minY: 0,
         ),
       ),

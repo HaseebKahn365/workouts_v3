@@ -156,13 +156,33 @@ class _TodayState extends ConsumerState<Today> {
     demoCategoryDataCount = getDemoCategoryDataForCount();
   }
 
+  void refresher() async {
+    await parent.forceDownload();
+    todayActivities = getOnlyTodaysActivities(parent.activities);
+    progressObjects = createProgressObjects();
+    demoCategoryDataTime = getDemoCategoryDataForTime();
+    // print("Printing demoCategoryDataTime\n" + demoCategoryDataTime.toString());
+    demoCategoryDataCount = getDemoCategoryDataForCount();
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     // print("progress objects: " + progressObjects.toString());
+
     return Expanded(
         child: ListView(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       children: [
+        //elevated button to refresh
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: ElevatedButton(
+            onPressed: refresher,
+            child: Text("Refresh"),
+          ),
+        ),
         const SizedBox(height: 16),
         ...progressObjects.map((progressObject) {
           return Column(
@@ -202,7 +222,11 @@ class _TodayState extends ConsumerState<Today> {
             ],
           );
         }),
+        const SizedBox(height: 16),
+        Center(child: Text("Time Based Activities", style: Theme.of(context).textTheme.headlineSmall)),
         PiechartWidget(demoCategoryData: demoCategoryDataTime, isCountBased: false),
+        const SizedBox(height: 16),
+        Center(child: Text("Count Based Activities", style: Theme.of(context).textTheme.headlineSmall)),
         PiechartWidget(demoCategoryData: demoCategoryDataCount),
       ],
     ));
@@ -234,7 +258,7 @@ class PiechartWidget extends StatelessWidget {
                   return PieChartSectionData(
                     color: Theme.of(context).colorScheme.secondaryContainer,
                     value: demoCategoryData.count.toDouble(),
-                    title: demoCategoryData.name + "\n(" + demoCategoryData.count.toString() + " mins)",
+                    title: demoCategoryData.name + "\n(" + demoCategoryData.count.toString() + (isCountBased ? ")" : " mins)"),
                     radius: 100,
                     titleStyle: TextStyle(
                       fontSize: 10, // Adjust the font size as needed
