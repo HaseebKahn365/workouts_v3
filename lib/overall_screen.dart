@@ -15,12 +15,34 @@ class Overall extends ConsumerStatefulWidget {
 }
 
 class _OverallState extends ConsumerState<Overall> {
-  @override
+  late final parent = widget.parent;
 
-  //creating a parent instance
+//On this screen we will display all the activities that we have done in the week. following is the way to construct the the line charts for every activity that was active this week
+
+  List<Map<String, int>> lineChartDataList = [];
+
+  List<Map<String, int>> getLineChartDataList() {
+    List<Map<String, int>> lineChartDataList = [];
+
+    List<Activity> activitiesThisWeek = [];
+    //get the activities that were active this week by going through every activity in the list of activities in the parent and checking if its DateTime is in the current week by using the DateTime.subtract() method along wih the DateTime.isAfter() method
+    for (var activity in parent.activities) {
+      DateTime lastWeek = DateTime.now().subtract(Duration(days: 7));
+      for (var k in activity.datedRecs.keys) {
+        if (k.isAfter(lastWeek)) {
+          activitiesThisWeek.add(activity);
+          break;
+        }
+      }
+    }
+    print("activities this week found :${activitiesThisWeek.length}  \n$activitiesThisWeek");
+
+    //we will go through each activity present in the list of t
+    return lineChartDataList;
+  }
+
   Widget build(BuildContext context) {
-    // final parent = widget.parent;
-
+    getLineChartDataList();
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
