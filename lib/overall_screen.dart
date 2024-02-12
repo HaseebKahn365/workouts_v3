@@ -19,13 +19,12 @@ class _OverallState extends ConsumerState<Overall> {
 
 //On this screen we will display all the activities that we have done in the week. following is the way to construct the the line charts for every activity that was active this week
 
-  List<Map<String, int>> lineChartDataList = [];
+  // List<Map<String, int>> lineChartDataList = [];
 
-  List<Map<String, int>> getLineChartDataList() {
-    List<Map<String, int>> lineChartDataList = [];
+  List<Activity> getWeeklyActivities() {
+    //get the activities that were active this week by going through every activity in the list of activities in the parent and checking if its DateTime is in the current week by using the DateTime.subtract() method along wih the DateTime.isAfter() method
 
     List<Activity> activitiesThisWeek = [];
-    //get the activities that were active this week by going through every activity in the list of activities in the parent and checking if its DateTime is in the current week by using the DateTime.subtract() method along wih the DateTime.isAfter() method
     for (var activity in parent.activities) {
       DateTime lastWeek = DateTime.now().subtract(Duration(days: 7));
       for (var k in activity.datedRecs.keys) {
@@ -36,6 +35,11 @@ class _OverallState extends ConsumerState<Overall> {
       }
     }
     print("activities this week found :${activitiesThisWeek.length}  \n$activitiesThisWeek");
+    return activitiesThisWeek;
+  }
+
+  List<Map<String, int>> getLineChartDataList(List<Activity> activitiesThisWeek) {
+    List<Map<String, int>> lineChartDataList = [];
 
     //we will go through each activity present in the list of and find the following data to construct the lineChartDataList
     // [ //List[0] aka first activity of the list of activities
@@ -71,7 +75,7 @@ class _OverallState extends ConsumerState<Overall> {
 
     for (var activity in activitiesThisWeek) {
       Map<String, int> activityDataThisWeek = {};
-      for (var i = 0; i < 7; i++) {
+      for (var i = 6; i >= 0; i--) {
         DateTime tempday = DateTime.now().subtract(Duration(days: i));
         String formattedDate = tempday.day.toString();
         //check if there are records falling under this tempday. we sum all the records
@@ -92,40 +96,32 @@ class _OverallState extends ConsumerState<Overall> {
   }
 
   Widget build(BuildContext context) {
-    getLineChartDataList();
+    final activitiesThisWeek = getWeeklyActivities();
+    final lineChartDataList = getLineChartDataList(activitiesThisWeek);
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListView(
           children: <Widget>[
             const SizedBox(height: 16),
-            Text('  Weekly\'s Progress ', style: Theme.of(context).textTheme.headlineMedium).animate().scale(
+            Center(child: Text('  Weekly\'s Progress \n', style: Theme.of(context).textTheme.headlineMedium)).animate().scale(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
                 ),
-            //here we will have the weekly report of the user's devlogs showing how much time he spent on developement.
-            //we will have a bar chart to show the progress of the user in the week.
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-              child: LineChartWidget(
-                lineDataMap: {
-                  '28': 5,
-                  '27': 6,
-                  '26': 7,
-                  '25': 8,
-                  '24': 9,
-                  '23': 10,
-                  '22': 11,
-                },
-              ).animate().slide(
-                    duration: const Duration(milliseconds: 500),
-                    begin: const Offset(0, 1),
-                    end: const Offset(0, 0),
-                    curve: Curves.easeInOut,
-                  ),
-            ),
+            for (var i = 0; i < activitiesThisWeek.length; i++)
+              Padding(
+                  padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                  child: Column(
+                    children: [
+                      Text("${activitiesThisWeek[i].name} ${(activitiesThisWeek[i].isCountBased) ? "" : "(mins)"}", style: Theme.of(context).textTheme.headlineSmall),
+                      LineChartWidget(
+                        lineDataMap: lineChartDataList[i],
+                      ),
+                    ],
+                  ).animate().scale(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      )),
           ],
         ),
       ),
@@ -148,7 +144,24 @@ class LineChartWidget extends StatelessWidget {
       ),
       child: LineChart(
         LineChartData(
-          lineTouchData: LineTouchData(enabled: false),
+          lineTouchData: LineTouchData(
+            enabled: true,
+            //styling for the touch tooltip
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.9),
+              getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                return touchedBarSpots.map((barSpot) {
+                  return LineTooltipItem(
+                    barSpot.y.toString(),
+                    TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
           gridData: FlGridData(show: false),
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
@@ -166,13 +179,13 @@ class LineChartWidget extends StatelessWidget {
             //only showw the titles on the bottom
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
-                //50% of the max in the map
-                interval: lineDataMap.values.reduce((value, element) => value > element ? value : element).toDouble() * 0.3,
+                reservedSize: 28,
+                interval: lineDataMap.values.reduce((value, element) => value > element ? value : element) == 0 ? 10 : lineDataMap.values.reduce((value, element) => value > element ? value : element).toDouble() * 0.3,
                 getTitlesWidget: (value, meta) => Text(
                   value.toInt().toString(),
                   style: TextStyle(
-                    fontSize: 10,
-                    color: (value == 0) ? Colors.amber.withOpacity(0) : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                    fontSize: 9,
+                    color: (value == 0) ? Colors.amber.withOpacity(0.0) : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                   ),
                 ),
                 showTitles: true,
