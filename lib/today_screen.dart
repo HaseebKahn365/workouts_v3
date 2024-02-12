@@ -183,6 +183,7 @@ class _TodayState extends ConsumerState<Today> {
             child: Text("Refresh"),
           ),
         ),
+
         const SizedBox(height: 16),
         ...progressObjects.map((progressObject) {
           return Column(

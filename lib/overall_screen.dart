@@ -37,7 +37,57 @@ class _OverallState extends ConsumerState<Overall> {
     }
     print("activities this week found :${activitiesThisWeek.length}  \n$activitiesThisWeek");
 
-    //we will go through each activity present in the list of t
+    //we will go through each activity present in the list of and find the following data to construct the lineChartDataList
+    // [ //List[0] aka first activity of the list of activities
+    //let suppose today is 28 date
+    //   {
+    //     '28': 5,//each value is the sum of records of datedRecs for the activity found on this date
+    //     '27': 6,
+    //     '26': 7,
+    //     '25': 0,
+    //     '24': 0,//in case if no records
+    //     '23': 10,
+    //     '22': 11,
+    //   },
+    //   {
+    //     '28': 5,
+    //     '27': 6,
+    //     '26': 7,
+    //     '25': 8,
+    //     '24': 9,
+    //     '23': 10,
+    //     '22': 11,
+    //   },
+    //   {
+    //     '28': 5,
+    //     '27': 6,
+    //     '26': 7,
+    //     '25': 8,
+    //     '24': 9,
+    //     '23': 10,
+    //     '22': 11,
+    //   }
+    // ];
+
+    for (var activity in activitiesThisWeek) {
+      Map<String, int> activityDataThisWeek = {};
+      for (var i = 0; i < 7; i++) {
+        DateTime tempday = DateTime.now().subtract(Duration(days: i));
+        String formattedDate = tempday.day.toString();
+        //check if there are records falling under this tempday. we sum all the records
+        int total = 0;
+        activity.datedRecs.forEach((key, value) {
+          //check if there are records falling under this tempday. we sum all the records
+          if (key.day == tempday.day) {
+            total += value;
+          }
+        });
+        activityDataThisWeek[formattedDate] = total;
+      }
+      lineChartDataList.add(activityDataThisWeek);
+    }
+    print("lineChartDataList : $lineChartDataList");
+
     return lineChartDataList;
   }
 
@@ -61,13 +111,13 @@ class _OverallState extends ConsumerState<Overall> {
               padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
               child: LineChartWidget(
                 lineDataMap: {
-                  'Mon': 5,
-                  'Tue': 6,
-                  'Wed': 7,
-                  'Thu': 8,
-                  'Fri': 9,
-                  'Sat': 10,
-                  'Sun': 11,
+                  '28': 5,
+                  '27': 6,
+                  '26': 7,
+                  '25': 8,
+                  '24': 9,
+                  '23': 10,
+                  '22': 11,
                 },
               ).animate().slide(
                     duration: const Duration(milliseconds: 500),
