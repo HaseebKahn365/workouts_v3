@@ -82,6 +82,7 @@ class _TodayState extends ConsumerState<Today> {
       int bestValue = getBestValue(activity);
       print("best value for " + activity.name + " is " + bestValue.toString());
       //assign yesterday to the nearest date
+      int totalCountToday = 0;
       DateTime nearestDate = DateTime.now().subtract(Duration(days: 1));
       int todaysRecent = 0;
       activity.datedRecs.forEach((key, value) {
@@ -89,6 +90,11 @@ class _TodayState extends ConsumerState<Today> {
           nearestDate = key;
         } else if (key.isAfter(nearestDate)) {
           nearestDate = key;
+        }
+
+        //logic for calcualting the total count today
+        if (key.day == DateTime.now().day && key.year == DateTime.now().year) {
+          totalCountToday += value;
         }
       });
 
@@ -98,15 +104,8 @@ class _TodayState extends ConsumerState<Today> {
 
       //the progress objects are for the display of the linear progress indicators we should populate the totalCountToday later which is optional parameter. modifying it in the above code is hard :(
 
-      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent));
+      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent, totalToday: totalCountToday));
     }
-
-    //running a loop to populate the progress objects with total today counts:
-    for (int i = 0; i < temp.length; i++) {
-      temp[i].totalToday = demoCategoryDataCount[i].count;
-    }
-
-    //ready to return the temp
 
     return temp;
   }
