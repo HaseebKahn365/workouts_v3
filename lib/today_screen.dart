@@ -27,7 +27,6 @@ class Today extends ConsumerStatefulWidget {
   Today({super.key, required this.parent});
 
   @override
-  @override
   _TodayState createState() => _TodayState();
 }
 
@@ -97,12 +96,24 @@ class _TodayState extends ConsumerState<Today> {
 
       print("todays recent for " + activity.name + " is " + todaysRecent.toString());
 
+      //the progress objects are for the display of the linear progress indicators we should populate the totalCountToday later which is optional parameter. modifying it in the above code is hard :(
+
       temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent));
     }
+
+    //running a loop to populate the progress objects with total today counts:
+    for (int i = 0; i < temp.length; i++) {
+      temp[i].totalToday = demoCategoryDataCount[i].count;
+    }
+
+    //ready to return the temp
+
     return temp;
   }
 
   late final parent = widget.parent;
+  late List<DemoCategoryData> demoCategoryDataTime;
+  late List<DemoCategoryData> demoCategoryDataCount;
 
   /*
   now we will get the acutal data for the pie chart.
@@ -140,11 +151,9 @@ class _TodayState extends ConsumerState<Today> {
         temp.add(DemoCategoryData(name: activity.name, count: totalCount));
       }
     }
+
     return temp;
   }
-
-  late List<DemoCategoryData> demoCategoryDataTime;
-  late List<DemoCategoryData> demoCategoryDataCount;
 
   void initState() {
     super.initState();
@@ -158,11 +167,13 @@ class _TodayState extends ConsumerState<Today> {
 
   void refresher() async {
     await parent.forceDownload();
-    todayActivities = getOnlyTodaysActivities(parent.activities);
-    progressObjects = createProgressObjects();
     demoCategoryDataTime = getDemoCategoryDataForTime();
     // print("Printing demoCategoryDataTime\n" + demoCategoryDataTime.toString());
     demoCategoryDataCount = getDemoCategoryDataForCount();
+
+    //we should make sure that the above functions run first to populate the today progress objects (linearprogresses) from this data.
+    todayActivities = getOnlyTodaysActivities(parent.activities);
+    progressObjects = createProgressObjects();
 
     setState(() {});
   }
@@ -213,6 +224,12 @@ class _TodayState extends ConsumerState<Today> {
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimaryContainer),
                       ),
+                      const SizedBox(height: 20),
+                      Center(
+                          child: Text(
+                        "total count today: ${progressObject.totalToday}",
+                        style: TextStyle(fontSize: 20),
+                      ))
                     ],
                   ),
                 ),
@@ -279,8 +296,9 @@ class ProgressObjects {
   String name;
   int bestValue;
   int todaysRecent;
+  int totalToday;
 
-  ProgressObjects({required this.name, required this.bestValue, required this.todaysRecent});
+  ProgressObjects({required this.name, required this.bestValue, required this.todaysRecent, this.totalToday = 0});
 }
 
 class DemoCategoryData {
