@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:workouts_v3/main.dart';
 
-
-
 class Parent extends ChangeNotifier {
   //there is only one parent object in the application that will consist of a list of Activity objects
   List<Activity> activities = [];

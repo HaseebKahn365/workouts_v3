@@ -136,7 +136,7 @@ class LineChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 20, right: 35, top: 20, bottom: 20),
+      padding: EdgeInsets.only(left: 20, right: 35, top: 20, bottom: 5),
       height: 250,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
@@ -163,20 +163,23 @@ class LineChartWidget extends StatelessWidget {
             ),
           ),
           gridData: FlGridData(show: false),
+          //show the titles on the bottom
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                   interval: 1,
                   showTitles: true,
-                  getTitlesWidget: (value, meta) => Text(
-                        lineDataMap.keys.toList()[value.toInt()],
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                  reservedSize: 50,
+                  getTitlesWidget: (value, meta) => Padding(
+                        padding: const EdgeInsets.all(17.0),
+                        child: Text(
+                          lineDataMap.keys.toList()[value.toInt()],
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       )),
             ),
-
-            //only showw the titles on the bottom
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 reservedSize: 28,
@@ -191,13 +194,11 @@ class LineChartWidget extends StatelessWidget {
                 showTitles: true,
               ),
             ),
-
             rightTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: false,
               ),
             ),
-
             topTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: false,
