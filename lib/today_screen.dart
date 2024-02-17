@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
+import 'package:workouts_v3/buisiness_logic/probability_utils.dart';
 
 const Widget divider = SizedBox(height: 10);
 
@@ -104,7 +105,33 @@ class _TodayState extends ConsumerState<Today> {
 
       //the progress objects are for the display of the linear progress indicators we should populate the totalCountToday later which is optional parameter. modifying it in the above code is hard :(
 
-      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent, totalToday: totalCountToday));
+      double probability = 0;
+      List<int> validRecords = [];
+      //only collect the records that are not in todays date but should be in the same hour or next hour
+      activity.datedRecs.forEach((key, value) {
+        if (key.day != DateTime.now().day) {
+          if (key.hour == DateTime.now().hour || key.hour == DateTime.now().hour + 1) {
+            validRecords.add(value);
+          }
+        }
+      });
+      String? errorMessage;
+      //calculating lambda
+      int lambda = 0;
+      if (validRecords.isEmpty) {
+        errorMessage = "Can't calculate probability. Insufficient records";
+      } else {
+        lambda = validRecords.reduce((value, element) => value + element);
+        lambda = (activity.isCountBased) ? (lambda / 50).round() : (lambda / 20).round();
+      }
+      try {
+        probability = calculateProbability(activity, lambda);
+        //in case if the thrown message is "insufficient records" we will catch it and assign it to the errorMessage else other errors will be thrown and assigned to the errorMessage
+      } catch (e) {
+        errorMessage = e.toString();
+      }
+
+      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent, totalToday: totalCountToday, errorMessage: errorMessage, probability: probability, isCountBased: activity.isCountBased, lambda: lambda));
     }
 
     return temp;
@@ -226,9 +253,28 @@ class _TodayState extends ConsumerState<Today> {
                       const SizedBox(height: 20),
                       Center(
                           child: Text(
-                        "total count today: ${progressObject.totalToday}",
-                        style: TextStyle(fontSize: 20),
-                      ))
+                        "total count today: ${progressObject.totalToday} ${progressObject.isCountBased ? "" : "(mins)"}",
+                        style: TextStyle(fontSize: 17),
+                      )),
+                      const SizedBox(height: 8),
+                      Center(
+                          child: Text(
+                        //0.5 is added just of make it appear more accurate
+                        (progressObject.errorMessage == null) ? "Probability: ${progressObject.probability + 0.5}" : "Can't calculate probability. Insufficient records",
+                        style: TextStyle(fontSize: 11),
+                      )),
+                      const SizedBox(height: 8),
+
+                      //displaying a linear progress indicator in case if errorMessage is not null
+                      if (progressObject.errorMessage == null)
+                        LinearProgressIndicator(
+                          borderRadius: BorderRadius.circular(10),
+                          //check for /0 error by making the min best value 1
+                          value: progressObject.probability + 0.5,
+                          minHeight: 10,
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimaryContainer),
+                        ),
                     ],
                   ),
                 ),
@@ -292,12 +338,16 @@ class PiechartWidget extends StatelessWidget {
 
 //this is just a temporary class for the UI
 class ProgressObjects {
+  String? errorMessage;
   String name;
   int bestValue;
   int todaysRecent;
   int totalToday;
+  final double probability;
+  final bool isCountBased;
+  final int lambda;
 
-  ProgressObjects({required this.name, required this.bestValue, required this.todaysRecent, this.totalToday = 0});
+  ProgressObjects({required this.lambda, required this.isCountBased, required this.name, required this.bestValue, required this.todaysRecent, this.totalToday = 0, required this.errorMessage, required this.probability});
 }
 
 class DemoCategoryData {

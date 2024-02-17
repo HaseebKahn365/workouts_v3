@@ -51,6 +51,16 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   TextEditingController _Tagcontroller = TextEditingController();
   TextEditingController _countController = TextEditingController();
   List<String> tags = [];
+  DateTime first = DateTime.now();
+  String getFirstDate() {
+    widget.activity.datedRecs.forEach((key, value) {
+      if (key.isBefore(first)) {
+        first = key;
+      }
+    });
+    return (first.day.toString() + "/" + first.month.toString() + "/" + first.year.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,7 +100,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                 ),
                                 child: Text(
                                   //created on
-                                  widget.activity.createdOn.day.toString() + '/' + widget.activity.createdOn.month.toString() + '/' + widget.activity.createdOn.year.toString(),
+                                  // widget.activity.createdOn.day.toString() + '/' + widget.activity.createdOn.month.toString() + '/' + widget.activity.createdOn.year.toString(),
+                                  getFirstDate(),
                                 ),
                                 onPressed: () {},
                               ),
