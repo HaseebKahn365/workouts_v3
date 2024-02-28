@@ -12,7 +12,7 @@ const Widget divider = SizedBox(height: 10);
 // be displayed in a row.
 const double narrowScreenWidthThreshold = 400;
 
-//create a list of DemoCategoryData objects
+//creating a list of DemoCategoryData objects
 // List<DemoCategoryData> demoCategoryData = [
 //   DemoCategoryData(name: 'Workout', count: 24),
 //   DemoCategoryData(name: 'Coding', count: 12),

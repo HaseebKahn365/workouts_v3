@@ -43,7 +43,6 @@ double calculateProbability(Activity activity, int lambda) {
 }
 
 double poissonProbability(int lambda) {
-// P(x=lambda=2) = (e^-2 . 2^2) / 2 ! //for example if lambda is 2
   return (pow(2.718, -lambda) * pow(lambda, lambda)) / factorial(lambda);
 }
 

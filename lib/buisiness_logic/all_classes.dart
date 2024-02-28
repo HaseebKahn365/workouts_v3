@@ -28,6 +28,13 @@ class Parent extends ChangeNotifier {
   Future<void> fetchActivities() async {
     if (isUpdate == false) return;
     activities = await AllDocsToMap();
+    List<Activity> temp = [];
+    activities.forEach((element) {
+      if (element.shouldAppear == true) {
+        temp.add(element);
+      }
+    });
+    activities = temp;
     totalActivities = activities.length;
     isUpdate = false;
     print(activities[0]);
@@ -36,6 +43,13 @@ class Parent extends ChangeNotifier {
 
   Future<void> forceDownload() async {
     activities = await AllDocsToMap();
+    List<Activity> temp = [];
+    activities.forEach((element) {
+      if (element.shouldAppear == true) {
+        temp.add(element);
+      }
+    });
+    activities = temp;
     totalActivities = activities.length;
     print(activities);
     print("activities downloaded forcefully");
