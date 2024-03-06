@@ -59,7 +59,7 @@ class Parent extends ChangeNotifier {
 class Activity extends ChangeNotifier {
   late bool isCountBased;
   bool shouldAppear = true; //used to remove the activity from the list and firestore just by setting it to false
-  DateTime createdOn = DateTime.now();
+
   int totalRecords = 0;
   late String name;
   Map<DateTime, int> datedRecs = {};
