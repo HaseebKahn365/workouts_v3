@@ -7,4 +7,6 @@ All the functionalities will be the same with the only difference that we are go
 1. Designing the database schema
 2. Creating methods and testing them to interact with the database and also converting the data to and from the database
 3. Migrating the app to use the local database along with syncing boolean to keep track of the data that has been synced to the server.
-4.
+4. adding the button in ui for testing the conversion of all the current data downloaded from firestore to the local storage. 
+5. adding the button to delete the entire local database for testing purposes.
+6. After all this we will add more ui elements to show more useful information to the user.
