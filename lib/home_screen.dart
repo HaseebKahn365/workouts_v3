@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
 import 'package:workouts_v3/screens/activity_screen.dart';
+import 'package:workouts_v3/screens/db_table_view.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
 
@@ -210,6 +211,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   curve: Curves.easeInOut,
                   hz: 2,
                 ),
+
+            //Temporary row widget for debugging buttons ie. covertToDb and deleteDb
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await parent.sqlService.open();
+                    },
+                    child: const Text("Open DB"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await parent.sqlService.fillTables(parent.activities);
+                      parent.sqlService.printAllTables();
+                    },
+                    child: const Text("Fill DB"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await parent.sqlService.delete();
+                    },
+                    child: const Text("Delete DB"),
+                  ),
+                  //button to view database in table view using material route
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DBTableView(sqlServiceObject: parent.sqlService),
+                        ),
+                      );
+                    },
+                    child: const Text("View DB"),
+                  ),
+                ],
+              ),
+            ),
 
             //creating a card for each category using expand operator for the list
             ...parent.activities.map(

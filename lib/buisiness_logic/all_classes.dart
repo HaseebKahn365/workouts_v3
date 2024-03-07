@@ -8,7 +8,7 @@ class Parent extends ChangeNotifier {
 
   //creating an instance of the SQLService to manage all the activities here
   final SQLService sqlService = SQLService();
-  
+
   List<Activity> activities = [];
   int totalActivities = 0;
   bool isUpdate = true;
@@ -84,7 +84,6 @@ class Activity extends ChangeNotifier {
     // DateTime(epoch value milliseconds)
     // We first need to convert the string date and time from the epoch milliseconds string to DateTime object
     // Then we can convert the map to the Activity object
-
     // Converting the datedRecs map
     Map<DateTime, int> tempDatedRecs = {};
     (data['datedRecs'] as Map<String, dynamic>).forEach((key, value) {

@@ -15,8 +15,6 @@ Database _getDatabaseOrThrow() {
 }
 
 class SQLService {
-  final db = _getDatabaseOrThrow();
-
   //opening the database if does not exist then create the following tables
   /*
   CREATE TABLE `Activity` (
@@ -159,6 +157,7 @@ CREATE TABLE `Tag` (
     final docsPath = await getDatabasesPath();
     final dbPath = join(docsPath, workoutsDb);
     await deleteDatabase(dbPath);
+    print("Database deleted successfully");
     _db = null;
   }
 
@@ -261,7 +260,72 @@ CREATE TABLE `Tag` (
   }
 
   //Print all the Db's each table
-  
+  Future<void> printAllTables() async {
+    final db = _getDatabaseOrThrow();
+
+    try {
+      final activities = await db.rawQuery('SELECT * FROM $activitiesTable LIMIT 200');
+      print("Activities: $activities");
+
+      final datedRecs = await db.rawQuery('SELECT * FROM $datedRecsTable LIMIT 200');
+      print("DatedRecs: $datedRecs");
+    } catch (e) {
+      print("Error in printing the tables: $e");
+    }
+  }
+
+  //querry all the activities and return list of activities
+  Future<List<Activity>> getAllActivitiesFromTable() async {
+    final db = _getDatabaseOrThrow();
+    List<Activity> activities = [];
+
+    try {
+      final rawActivity = await db.rawQuery('SELECT * FROM $activitiesTable');
+      rawActivity.forEach((element) {
+        activities.add(Activity(name: element[nameField] as String, isCountBased: element[isCountBasedField] == 1 ? true : false));
+      });
+      return activities;
+    } catch (e) {
+      print("Error in getting all activities from the table: $e");
+      return [];
+    }
+  }
+
+  //similarly querry all the dated records and return Map<String, date> of records for date and count
+  Future<Map<String, int>> getAllDatedRecsFromTable() async {
+    final db = _getDatabaseOrThrow();
+    Map<String, int> records = {};
+
+    try {
+      final rawRecords = await db.rawQuery('SELECT * FROM $datedRecsTable');
+      rawRecords.forEach((element) {
+        records[DateTime.fromMillisecondsSinceEpoch(element[dateField] as int).toString()] = element[countField] as int;
+      });
+      print("Printing the records: $records");
+      return records;
+    } catch (e) {
+      print("Error in getting all dated records from the table: $e");
+      return {};
+    }
+  }
+
+  //we need the List of all the foriegn keys in the dated records table
+  Future<List<int>> getAllActivityIds() async {
+    final db = _getDatabaseOrThrow();
+    List<int> ids = [];
+
+    try {
+      final rawIds = await db.rawQuery('SELECT $activityIdField FROM $datedRecsTable');
+      rawIds.forEach((element) {
+        ids.add(element[activityIdField] as int);
+      });
+      print("Printing the foreign ids of the activities found in datedRecords: $ids");
+      return ids;
+    } catch (e) {
+      print("Error in getting all activity ids from the table: $e");
+      return [];
+    }
+  }
 }
 
 //creating all the essential consts for the database and database tables
