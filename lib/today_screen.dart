@@ -131,7 +131,9 @@ class _TodayState extends ConsumerState<Today> {
         errorMessage = e.toString();
       }
 
-      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent, totalToday: totalCountToday, errorMessage: errorMessage, probability: probability, isCountBased: activity.isCountBased, lambda: lambda));
+      int validRecordsSum = validRecords.reduce((value, element) => value + element);
+
+      temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent, totalToday: totalCountToday, errorMessage: errorMessage, probability: probability, isCountBased: activity.isCountBased, validRecordsSum: validRecordsSum));
     }
 
     return temp;
@@ -253,14 +255,14 @@ class _TodayState extends ConsumerState<Today> {
                       const SizedBox(height: 20),
                       Center(
                           child: Text(
-                        "total count today: ${progressObject.totalToday} ${progressObject.isCountBased ? "" : "(mins)"}",
-                        style: TextStyle(fontSize: 17),
+                        "Probability of reaching ${progressObject.validRecordsSum} in the next hour:",
+                        style: TextStyle(fontSize: 15),
                       )),
                       const SizedBox(height: 8),
                       Center(
                           child: Text(
-                        //0.5 is added just of make it appear more accurate
-                        (progressObject.errorMessage == null) ? "Probability: ${progressObject.probability + 0.5}" : "Can't calculate probability. Insufficient records",
+                        //upto 2 decimal places
+                        (progressObject.errorMessage == null) ? "Probability: ${(progressObject.probability * 100).toStringAsFixed(2)} %" : "Can't calculate probability. Insufficient records",
                         style: TextStyle(fontSize: 11),
                       )),
                       const SizedBox(height: 8),
@@ -345,9 +347,9 @@ class ProgressObjects {
   int totalToday;
   final double probability;
   final bool isCountBased;
-  final int lambda;
+  final int validRecordsSum;
 
-  ProgressObjects({required this.lambda, required this.isCountBased, required this.name, required this.bestValue, required this.todaysRecent, this.totalToday = 0, required this.errorMessage, required this.probability});
+  ProgressObjects({required this.validRecordsSum, required this.isCountBased, required this.name, required this.bestValue, required this.todaysRecent, this.totalToday = 0, required this.errorMessage, required this.probability});
 }
 
 class DemoCategoryData {

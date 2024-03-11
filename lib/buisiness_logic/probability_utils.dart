@@ -6,6 +6,7 @@ import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 
 double calculateProbability(Activity activity, int lambda) {
   double probability = 0;
+  lambda = (lambda > 4) ? 3 : lambda;
   if (activity.isCountBased) {
     List<int> validRecords = [];
     //only collect the records that are not in todays date but should be in the same hour or next hour

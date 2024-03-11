@@ -27,11 +27,15 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
   final List<Image> images = [];
 
+  void screenRefresh() {
+    setState(() {});
+  }
+
   final ImagePicker imagePicker = ImagePicker();
   List<XFile> imageFileList = []; // Moved this list outside the map function to prevent resetting on every iteration
 
   void selectImages() async {
-    final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
+    final List<XFile>? selectedImages = await imagePicker.pickMultiImage(imageQuality: 20);
     if (selectedImages != null) {
       imageFileList.addAll(selectedImages);
       setState(() {
@@ -46,6 +50,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       });
     }
     print("${imageFileList.length} images selected");
+    //print the size of each image
+    imageFileList.forEach((element) {
+      print(File(element.path).lengthSync());
+    });
   }
 
   TextEditingController _Tagcontroller = TextEditingController();
@@ -99,7 +107,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                   side: BorderSide.none,
                                 ),
                                 child: Text(
-                                  //created on
+                                  // created on
                                   // widget.activity.createdOn.day.toString() + '/' + widget.activity.createdOn.month.toString() + '/' + widget.activity.createdOn.year.toString(),
                                   getFirstDate(),
                                 ),
@@ -225,18 +233,41 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                   .map(
                                     (image) => Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(100),
-                                          border: Border.all(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            width: 2,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              //use a full screen dialog to display the image similar to WhatsApp
+                                              return Dialog(
+                                                child: Container(
+                                                  height: MediaQuery.of(context).size.height * 0.8,
+                                                  width: MediaQuery.of(context).size.width,
+                                                  child: InteractiveViewer(
+                                                    maxScale: 10,
+                                                    child: Image(
+                                                      image: image.image,
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(100),
+                                            border: Border.all(
+                                              color: Theme.of(context).colorScheme.primary,
+                                              width: 2,
+                                            ),
                                           ),
-                                        ),
-                                        height: 100,
-                                        width: 100,
-                                        child: ClipOval(
-                                          child: image,
+                                          height: 100,
+                                          width: 100,
+                                          child: ClipOval(
+                                            child: image,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -302,32 +333,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                             maxLines: 1,
                           ),
 
-                          //Here is just a place holder for now but later it will be replace with a linear progress indicator
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: Container(
-                              height: 10,
-                              width: 300,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height: 10,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          const SizedBox(
+                            height: 20,
                           ),
-
-                          //adding action buttons
 
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -357,7 +365,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                     minimumSize: Size(0, 0),
                                   ),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     // Save the changes
                                     if (tags.isNotEmpty || _countController.text.isNotEmpty || imageFileList.isNotEmpty) {
                                       DateTime now = DateTime.now();
@@ -433,6 +441,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                       // resetter();
                                       // widget.callableRefresh();
                                     }
+                                    //force download the activity list
+
+                                    screenRefresh();
                                   },
                                   child: Text(
                                     "Save",
@@ -444,6 +455,40 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                 ),
                               ),
                             ],
+                          ),
+
+                          const SizedBox(
+                            height: 20,
+                          ),
+
+                          //color group and color chip widgets for displaying daily, weekly, monthly and yearly counts of this activity.
+                          ColorGroup(
+                            children: [
+                              ColorChip(
+                                color: Theme.of(context).colorScheme.inversePrimary,
+                                label: 'Today',
+                                number: totalCountToday().toString(),
+                              ),
+                              ColorChip(
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                label: 'This Week',
+                                number: totalCountThisWeek().toString(),
+                              ),
+                              ColorChip(
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                label: 'This Month',
+                                number: totalCountThisMonth().toString(),
+                              ),
+                              ColorChip(
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                label: 'This Year',
+                                number: totalCountThisYear().toString(),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(
+                            height: 20,
                           ),
                         ], //end of the entire coontainer widget
                       ),
@@ -462,6 +507,46 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     );
   }
 
+  int totalCountToday() {
+    int count = 0;
+    widget.activity.datedRecs.forEach((key, value) {
+      if (key.day == DateTime.now().day && key.month == DateTime.now().month && key.year == DateTime.now().year) {
+        count += value;
+      }
+    });
+    return count;
+  }
+
+  int totalCountThisWeek() {
+    int count = 0;
+    widget.activity.datedRecs.forEach((key, value) {
+      if (key.isAfter(DateTime.now().subtract(Duration(days: 7)))) {
+        count += value;
+      }
+    });
+    return count;
+  }
+
+  int totalCountThisMonth() {
+    int count = 0;
+    widget.activity.datedRecs.forEach((key, value) {
+      if (key.month == DateTime.now().month && key.year == DateTime.now().year) {
+        count += value;
+      }
+    });
+    return count;
+  }
+
+  int totalCountThisYear() {
+    int count = 0;
+    widget.activity.datedRecs.forEach((key, value) {
+      if (key.year == DateTime.now().year) {
+        count += value;
+      }
+    });
+    return count;
+  }
+
   resetter() {
     setState(() {
       _countController.clear();
@@ -470,5 +555,84 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       imageFileList.clear();
       images.clear();
     });
+  }
+}
+
+//creating color group and color chip widgets for displaying daily, weekly, monthly and yearly counts of this activity.
+
+class ColorGroup extends StatelessWidget {
+  const ColorGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+}
+
+class ColorChip extends StatelessWidget {
+  const ColorChip({
+    super.key,
+    required this.color,
+    required this.number,
+    required this.label,
+    this.onColor,
+  });
+
+  final Color color;
+  final Color? onColor;
+  final String label;
+  final String number;
+
+  static Color contrastColor(Color color) {
+    final brightness = ThemeData.estimateBrightnessForColor(color);
+    switch (brightness) {
+      case Brightness.dark:
+        return Colors.white;
+      case Brightness.light:
+        return Colors.black;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color labelColor = onColor ?? contrastColor(color);
+
+    return Container(
+      width: 320,
+      color: color,
+      child: Padding(
+        padding: const EdgeInsets.all(17),
+        child: Row(
+          children: [
+            Expanded(
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                  child: Text(
+                    label,
+                    style: TextStyle(color: labelColor),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                  child: Text(
+                    number,
+                    style: TextStyle(color: labelColor),
+                  ),
+                ),
+              ]),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
