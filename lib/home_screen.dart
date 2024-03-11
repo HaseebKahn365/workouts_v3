@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
 import 'package:workouts_v3/screens/activity_screen.dart';
-import 'package:workouts_v3/screens/db_table_view.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
 
@@ -256,45 +255,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(
               height: 40,
-            ),
-
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await widget.parent.sqlService.open();
-                    },
-                    child: const Text("Open DB"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await widget.parent.sqlService.fillTables(widget.parent.activities);
-                      widget.parent.sqlService.printAllTables();
-                    },
-                    child: const Text("Fill DB"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await widget.parent.sqlService.delete();
-                    },
-                    child: const Text("Delete DB"),
-                  ),
-                  //button to view database in table view using material route
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => DBTableView(sqlServiceObject: widget.parent.sqlService),
-                        ),
-                      );
-                    },
-                    child: const Text("View DB"),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
