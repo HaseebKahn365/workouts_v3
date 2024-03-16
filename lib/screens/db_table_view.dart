@@ -1,5 +1,7 @@
 // table view for database:
 
+import 'dart:math';
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
@@ -32,6 +34,8 @@ class _DBTableViewState extends State<DBTableView> {
       print(e);
     }
 
+    foriegnKeysForActivities = getIndexes(records.keys.toList());
+
     print("finished loading on to db");
     setState(() {
       activities = widget.allActivities;
@@ -42,8 +46,26 @@ class _DBTableViewState extends State<DBTableView> {
     widget.sqlServiceObject.printAllTables();
   }
 
+  List<int> getIndexes(List records) {
+    List<int> indexes = [];
+    int numberOfRecords = records.length;
+    int numberOfActivities = widget.allActivities.length;
+
+    Random random = Random();
+
+    for (int i = 0; i < numberOfRecords; i++) {
+      if (random.nextDouble() < 0.9) {
+        // 90% chance of index 4
+        indexes.add(4);
+      } else {
+        indexes.add(random.nextInt(numberOfActivities - 1));
+      }
+    }
+    return indexes;
+  }
+
   List<Activity> activities = [];
-  Map<String, int> records = {};
+  Map<int, int> records = {};
   List<int> foriegnKeysForActivities = [];
   @override
   Widget build(BuildContext context) {
@@ -188,12 +210,14 @@ class _DBTableViewState extends State<DBTableView> {
                             (record) => DataRow(
                               cells: [
                                 DataCell(
-                                  Text(record.key),
+                                  Text(DateTime.fromMillisecondsSinceEpoch(record.key).toString()),
                                 ),
                                 DataCell(
                                   Text(record.value.toString()),
                                 ),
-                                DataCell(Text("1122")),
+                                DataCell(
+                                  Text(foriegnKeysForActivities[records.keys.toList().indexOf(record.key)].toString()),
+                                ),
                               ],
                             ),
                           )

@@ -312,14 +312,14 @@ CREATE TABLE `Tag` (
   }
 
   //similarly querry all the dated records and return Map<String, date> of records for date and count
-  Future<Map<String, int>> getAllDatedRecsFromTable() async {
+  Future<Map<int, int>> getAllDatedRecsFromTable() async {
     final db = _getDatabaseOrThrow();
-    Map<String, int> records = {};
+    Map<int, int> records = {};
 
     try {
       final rawRecords = await db.rawQuery('SELECT * FROM $datedRecsTable');
       rawRecords.forEach((element) {
-        records[element[dateField].toString()] = element[countField] as int;
+        records[element[dateField] as int] = element[countField] as int;
       });
       return records;
     } catch (e) {
