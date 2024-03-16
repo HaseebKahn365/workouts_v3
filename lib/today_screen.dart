@@ -52,7 +52,7 @@ class _TodayState extends ConsumerState<Today> {
     for (Activity activity in allActivities) {
       //check if the day and year matches
       activity.datedRecs.forEach((key, value) {
-        if (key.day == today.day && key.year == today.year) {
+        if (key.day == today.day && key.month == today.month && key.year == today.year) {
           if (!todayActivities.contains(activity)) {
             todayActivities.add(activity);
           }
@@ -94,8 +94,9 @@ class _TodayState extends ConsumerState<Today> {
         }
 
         //logic for calcualting the total count today
-        if (key.day == DateTime.now().day && key.year == DateTime.now().year) {
+        if (key.day == DateTime.now().day && key.month == DateTime.now().month && key.year == DateTime.now().year) {
           totalCountToday += value;
+          print("total count today for " + activity.name + " is " + totalCountToday.toString());
         }
       });
 
@@ -172,7 +173,7 @@ class _TodayState extends ConsumerState<Today> {
         int totalCount = 0;
         activity.datedRecs.forEach((key, value) {
           //only if the year and day matches
-          if (key.day == DateTime.now().day && key.year == DateTime.now().year) {
+          if (key.day == DateTime.now().day && key.month == DateTime.now().month && key.year == DateTime.now().year) {
             totalCount += value;
           }
         });

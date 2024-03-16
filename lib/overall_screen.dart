@@ -82,7 +82,7 @@ class _OverallState extends ConsumerState<Overall> {
         int total = 0;
         activity.datedRecs.forEach((key, value) {
           //check if there are records falling under this tempday. we sum all the records
-          if (key.day == tempday.day) {
+          if (key.day == tempday.day && key.month == tempday.month && key.year == tempday.year) {
             total += value;
           }
         });
