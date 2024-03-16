@@ -116,6 +116,7 @@ class _TodayState extends ConsumerState<Today> {
         }
       });
       String? errorMessage;
+      int validRecordsSum = 0;
       //calculating lambda
       int lambda = 0;
       if (validRecords.isEmpty) {
@@ -127,11 +128,10 @@ class _TodayState extends ConsumerState<Today> {
       try {
         probability = calculateProbability(activity, lambda);
         //in case if the thrown message is "insufficient records" we will catch it and assign it to the errorMessage else other errors will be thrown and assigned to the errorMessage
+        validRecordsSum = validRecords.reduce((value, element) => value + element);
       } catch (e) {
         errorMessage = e.toString();
       }
-
-      int validRecordsSum = validRecords.reduce((value, element) => value + element);
 
       temp.add(ProgressObjects(name: activity.name, bestValue: bestValue, todaysRecent: todaysRecent, totalToday: totalCountToday, errorMessage: errorMessage, probability: probability, isCountBased: activity.isCountBased, validRecordsSum: validRecordsSum));
     }

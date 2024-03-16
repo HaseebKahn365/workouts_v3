@@ -8,6 +8,7 @@ import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
 import 'package:workouts_v3/main.dart';
 import 'package:workouts_v3/screens/activity_screen.dart';
+import 'package:workouts_v3/screens/db_table_view.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
 
@@ -270,6 +271,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(
               height: 40,
+            ),
+
+            //create an elevated button that says View relational DB
+            Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    //navigate to the activity screen using material route
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DBTableView(
+                          sqlServiceObject: parent.sqlService,
+                          allActivities: parent.activities,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("View Relational DB"),
+                ),
+              ],
             ),
           ],
         ),
