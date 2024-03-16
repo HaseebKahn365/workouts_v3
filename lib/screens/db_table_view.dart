@@ -18,7 +18,6 @@ class DBTableView extends StatefulWidget {
 class _DBTableViewState extends State<DBTableView> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -30,6 +29,8 @@ class _DBTableViewState extends State<DBTableView> {
         widget.allActivities,
       );
       records = await widget.sqlServiceObject.getAllDatedRecsFromTable();
+
+      getImageMapRecords();
     } catch (e) {
       print(e);
     }
@@ -76,7 +77,7 @@ class _DBTableViewState extends State<DBTableView> {
             onPressed: () async {
               await getActivities();
             },
-            icon: Icon(FluentIcons.reward_24_filled),
+            icon: Icon(FluentIcons.cloud_arrow_down_48_regular),
           ),
         ],
         title: Text("Database Table View"),
@@ -228,8 +229,373 @@ class _DBTableViewState extends State<DBTableView> {
               ),
             ],
           ),
+
+          //another expansion tile for displaying the table of image map records which should contain the date , number of image urls and the foreign key to the activity table
+          ExpansionTile(
+            title: Text("Image Map Records"),
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.01),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: DataTable(
+                      headingRowHeight: 35,
+                      dataRowHeight: 35,
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: Icon(
+                                  FluentIcons.key_multiple_20_regular,
+                                  size: 15,
+                                ),
+                              ),
+                              Text('Date', style: TextStyle(fontStyle: FontStyle.italic)),
+                            ],
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text('Number of Image URLs', style: TextStyle(fontStyle: FontStyle.italic)),
+                        ),
+                        DataColumn(
+                          label: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: Icon(
+                                  FluentIcons.key_multiple_20_regular,
+                                  size: 15,
+                                ),
+                              ),
+                              Text('FK : Activity ID', style: TextStyle(fontStyle: FontStyle.italic)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      //display only the rows where the number of imageurls is not 0
+                      rows: imageMapRecords
+                          .where((element) => element.numberOfImageURLs != 0)
+                          .map(
+                            (record) => DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(record.date.toString()),
+                                ),
+                                DataCell(
+                                  Text(record.numberOfImageURLs.toString()),
+                                ),
+                                DataCell(
+                                  Text(record.foreignKeyToActivityTable.toString()),
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          //another expansion tile for displaying the table of tagsMap which is similar to the imageMap but instead of image urls it contains tags which are strings
+
+          ExpansionTile(
+            title: Text("Tags Map Records"),
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.01),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: DataTable(
+                      headingRowHeight: 35,
+                      dataRowHeight: 35,
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: Icon(
+                                  FluentIcons.key_multiple_20_regular,
+                                  size: 15,
+                                ),
+                              ),
+                              Text('Date', style: TextStyle(fontStyle: FontStyle.italic)),
+                            ],
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text('Number of Tags', style: TextStyle(fontStyle: FontStyle.italic)),
+                        ),
+                        DataColumn(
+                          label: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: Icon(
+                                  FluentIcons.key_multiple_20_regular,
+                                  size: 15,
+                                ),
+                              ),
+                              Text('FK : Activity ID', style: TextStyle(fontStyle: FontStyle.italic)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      //display only the rows where the number of tags is not 0
+                      //use the same data as the imageMapRecords
+                      rows: imageMapRecords
+                          .where((element) => element.numberOfImageURLs != 0)
+                          .map(
+                            (record) => DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(record.date.toString()),
+                                ),
+                                DataCell(
+                                  Text(record.numberOfImageURLs.toString()),
+                                ),
+                                DataCell(
+                                  Text(record.foreignKeyToActivityTable.toString()),
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          //similary add tow more list tiles with only single row of that says coming soon. one for image url and one for tag
+
+          ExpansionTile(
+            title: Text("Image URL Records"),
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.01),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: DataTable(
+                        headingRowHeight: 35,
+                        dataRowHeight: 35,
+                        columns: const <DataColumn>[
+                          DataColumn(
+                            label: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(
+                                    FluentIcons.key_multiple_20_regular,
+                                    size: 15,
+                                  ),
+                                ),
+                                Text('image url', style: TextStyle(fontStyle: FontStyle.italic)),
+                              ],
+                            ),
+                          ),
+                          DataColumn(
+                            label: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(
+                                    FluentIcons.key_multiple_20_regular,
+                                    size: 15,
+                                  ),
+                                ),
+                                Text('FK : image_map_id', style: TextStyle(fontStyle: FontStyle.italic)),
+                              ],
+                            ),
+                          ),
+                        ],
+                        //only one record that says coming soon
+                        rows: [
+                          DataRow(
+                            cells: [
+                              DataCell(
+                                Text("Coming Soon"),
+                              ),
+                              DataCell(
+                                Text("Coming Soon"),
+                              ),
+                            ],
+                          ),
+                        ]),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          //exactly the same as above expansion tile but with tags
+          ExpansionTile(
+            title: Text("Tag Records"),
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.01),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: DataTable(
+                        headingRowHeight: 35,
+                        dataRowHeight: 35,
+                        columns: const <DataColumn>[
+                          DataColumn(
+                            label: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(
+                                    FluentIcons.key_multiple_20_regular,
+                                    size: 15,
+                                  ),
+                                ),
+                                Text('Tag', style: TextStyle(fontStyle: FontStyle.italic)),
+                              ],
+                            ),
+                          ),
+                          DataColumn(
+                            label: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(
+                                    FluentIcons.key_multiple_20_regular,
+                                    size: 15,
+                                  ),
+                                ),
+                                Text('FK : tags_map_id', style: TextStyle(fontStyle: FontStyle.italic)),
+                              ],
+                            ),
+                          ),
+                        ],
+                        //only one record that says coming soon
+                        rows: [
+                          DataRow(
+                            cells: [
+                              DataCell(
+                                Text("Coming Soon"),
+                              ),
+                              DataCell(
+                                Text("Coming Soon"),
+                              ),
+                            ],
+                          ),
+                        ]),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  List<imageMapRow> imageMapRecords = [];
+  List<tagsMapRow> tagsMapRecords = [];
+  void getImageMapRecords() {
+    for (int i = 0; i < records.length; i++) {
+      imageMapRecords.add(
+        imageMapRow(
+          date: records.keys.toList()[i],
+          foreignKeyToActivityTable: foriegnKeysForActivities[i],
+        ),
+      );
+    }
+  }
+
+  void getTagsMapRecords() {
+    for (int i = 0; i < records.length; i++) {
+      tagsMapRecords.add(
+        tagsMapRow(
+          date: records.keys.toList()[i],
+          foreignKeyToActivityTable: foriegnKeysForActivities[i],
+        ),
+      );
+    }
+  }
+}
+
+class imageMapRow {
+  final int date;
+  int numberOfImageURLs = 0;
+  final int foreignKeyToActivityTable;
+
+  imageMapRow({
+    required this.date,
+    required this.foreignKeyToActivityTable,
+  }) {
+    numberOfImageURLs = getnum();
+  }
+}
+
+int getnum() {
+  Random random = Random();
+  return random.nextInt(3);
+}
+
+class tagsMapRow {
+  final int date;
+  int numberOfTags = 1;
+  final int foreignKeyToActivityTable;
+
+  tagsMapRow({
+    required this.date,
+    required this.foreignKeyToActivityTable,
+  }) {
+    numberOfTags = getnum();
   }
 }
