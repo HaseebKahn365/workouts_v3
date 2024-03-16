@@ -24,6 +24,8 @@ Future<void> main() async {
   );
 }
 
+String motivationalMessage = "Lets get this over with! (Default)";
+
 class Wrokouts extends ConsumerStatefulWidget {
   const Wrokouts({super.key});
 
@@ -58,6 +60,7 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
       themeData = updateThemes(colorSelected, useMaterial3, useLightMode);
       //load shared preferences under the name phoen id
       phoneId = prefs.getString('phoneId');
+      motivationalMessage = prefs.getString('message') ?? "Lets get this over with! (Default)";
       print('Loaded the sharedPrefrences themeData');
     });
   }
@@ -66,6 +69,7 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('useLightMode', useLightMode);
     prefs.setInt('colorSelected', colorSelected);
+    prefs.setString('message', motivationalMessage);
   }
 
   @override
@@ -320,7 +324,7 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
             //creating an alert dialogue box to send feedback in the same fashion as above
 
             const ListTile(
-              title: Text('Send Feedback', style: TextStyle(fontSize: 17)),
+              title: Text('Motivational Message', style: TextStyle(fontSize: 17)),
             ),
 
             Align(
@@ -331,9 +335,60 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
                     padding: EdgeInsets.only(left: 12, top: 5, bottom: 5),
                     child: ElevatedButton(
                       onPressed: () {
-                        //launch
+                        //alert dialogue box with a text field to enter the message
+                        String oldMessage = motivationalMessage;
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Set Motivational Message'),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      //creating a text field to enter the text
+                                      TextField(
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(10),
+                                          border: OutlineInputBorder(),
+                                          labelText: motivationalMessage,
+                                        ),
+                                        onChanged: (value) {
+                                          motivationalMessage = value;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  //create a cancel button
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      motivationalMessage = oldMessage;
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  //create a save button with rounded border outline
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _saveSettings();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Save'),
+                                    //make elevation 0 and rounded corners
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            });
                       },
-                      child: const Text('Send Feedback'),
+                      child: const Text('Set Message'),
                       //make elevation 0 and rounded corners
                       style: ElevatedButton.styleFrom(
                         elevation: 0,

@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
+import 'package:workouts_v3/main.dart';
 import 'package:workouts_v3/screens/activity_screen.dart';
 
 //creating Instance of the Parent Class as changeNotifierprovider using riverpod
@@ -210,6 +211,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   curve: Curves.easeInOut,
                   hz: 2,
                 ),
+
+            const SizedBox(
+              height: 10,
+            ),
+
+            Center(
+                child: Padding(
+              padding: const EdgeInsets.only(left: 17.0, right: 17),
+              child: Text(motivationalMessage),
+            )),
+
+            const SizedBox(
+              height: 10,
+            ),
 
             //creating a card for each category using expand operator for the list
             ...parent.activities.map(
