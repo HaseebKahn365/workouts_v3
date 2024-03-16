@@ -265,10 +265,30 @@ CREATE TABLE `Tag` (
 
     try {
       final activities = await db.rawQuery('SELECT * FROM $activitiesTable LIMIT 200');
+      print("Printint the activities table");
       print("Activities: $activities");
 
       final datedRecs = await db.rawQuery('SELECT * FROM $datedRecsTable LIMIT 200');
+      print("Printint the DatedRecs table");
       print("DatedRecs: $datedRecs");
+
+      final imageRecs = await db.rawQuery('SELECT * FROM $imageRecsTable LIMIT 200');
+      print("Printint the imageRecs table");
+      print("ImageRecs: $imageRecs");
+
+      final imageLink = await db.rawQuery('SELECT * FROM $imageLinkTable LIMIT 200');
+      print("Printint the imageLink table");
+      print("ImageLink: $imageLink");
+
+      final tagRecs = await db.rawQuery('SELECT * FROM $tagRecsTable LIMIT 200');
+      print("Printint the TagRecs table");
+      print("TagRecs: $tagRecs");
+
+      final tag = await db.rawQuery('SELECT * FROM $tagTable LIMIT 200');
+      print("Printint the Tags table");
+      print("Tag: $tag");
+
+      print("All tables printed successfully");
     } catch (e) {
       print("Error in printing the tables: $e");
     }
@@ -299,9 +319,8 @@ CREATE TABLE `Tag` (
     try {
       final rawRecords = await db.rawQuery('SELECT * FROM $datedRecsTable');
       rawRecords.forEach((element) {
-        records[DateTime.fromMillisecondsSinceEpoch(element[dateField] as int).toString()] = element[countField] as int;
+        records[element[dateField].toString()] = element[countField] as int;
       });
-      print("Printing the records: $records");
       return records;
     } catch (e) {
       print("Error in getting all dated records from the table: $e");

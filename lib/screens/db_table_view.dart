@@ -2,7 +2,6 @@
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 
 class DBTableView extends StatefulWidget {
@@ -23,13 +22,24 @@ class _DBTableViewState extends State<DBTableView> {
 
   Future<void> getActivities() async {
     //filling the tables of the relational schema using the SQLService object
-    await widget.sqlServiceObject.open();
-    await widget.sqlServiceObject.fillTables(
-      widget.allActivities,
-    );
+    try {
+      await widget.sqlServiceObject.open();
+      await widget.sqlServiceObject.fillTables(
+        widget.allActivities,
+      );
+      records = await widget.sqlServiceObject.getAllDatedRecsFromTable();
+    } catch (e) {
+      print(e);
+    }
+
+    print("finished loading on to db");
     setState(() {
       activities = widget.allActivities;
+      print("here goes all the records" + records.toString());
+      records = records;
     });
+
+    widget.sqlServiceObject.printAllTables();
   }
 
   List<Activity> activities = [];
@@ -183,9 +193,7 @@ class _DBTableViewState extends State<DBTableView> {
                                 DataCell(
                                   Text(record.value.toString()),
                                 ),
-                                DataCell(
-                                  Text(foriegnKeysForActivities[records.keys.toList().indexOf(record.key)].toString()),
-                                ),
+                                DataCell(Text("1122")),
                               ],
                             ),
                           )
