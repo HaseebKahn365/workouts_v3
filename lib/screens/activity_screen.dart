@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,9 +21,20 @@ class ActivityScreen extends ConsumerStatefulWidget {
 }
 
 class _ActivityScreenState extends ConsumerState<ActivityScreen> {
+  int todayCount = 0;
+  int weekCount = 0;
+  int monthCount = 0;
+  int yearCount = 0;
   @override
   void initState() {
     super.initState();
+    //Here are the variables for storing the counter values for today, week , month and year. They are assigned by calling their respective methods
+    todayCount = totalCountToday();
+    weekCount = totalCountThisWeek();
+    monthCount = totalCountThisMonth();
+    yearCount = totalCountThisYear();
+
+    //
   }
 
   final List<Image> images = [];
@@ -35,20 +47,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   List<XFile> imageFileList = []; // Moved this list outside the map function to prevent resetting on every iteration
 
   void selectImages() async {
-    final List<XFile>? selectedImages = await imagePicker.pickMultiImage(imageQuality: 20);
-    if (selectedImages != null) {
-      imageFileList.addAll(selectedImages);
-      setState(() {
-        images.addAll(
-          selectedImages.map(
-            (e) => Image.file(
-              File(e.path),
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
-      });
-    }
+    //pick the image from camera and add it to the list
+
+    imageFileList.add(imagePicker.pickImage(source: ImageSource.camera) as XFile);
+
     print("${imageFileList.length} images selected");
     //print the size of each image
     imageFileList.forEach((element) {
@@ -395,13 +397,20 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                                     //incrementing the record count
                                                     widget.activity.totalRecords++;
 
+                                                    int tempCount = _countController.text.isEmpty ? 0 : int.parse(_countController.text);
+
+                                                    todayCount += tempCount;
+                                                    weekCount += tempCount;
+                                                    monthCount += tempCount;
+                                                    yearCount += tempCount;
+
                                                     //call resetters after 1 second
-                                                    Future.delayed(Duration(milliseconds: 1000)).then((value) {
+                                                    Future.delayed(Duration(milliseconds: 500)).then((value) {
                                                       resetter();
                                                       widget.callableRefresh();
                                                     });
 
-                                                    Future.delayed(Duration(milliseconds: 500)).then((value) => Navigator.pop(context));
+                                                    Future.delayed(Duration(milliseconds: 200)).then((value) => Navigator.pop(context));
                                                     return Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                       children: [
@@ -441,7 +450,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                       // resetter();
                                       // widget.callableRefresh();
                                     }
-                                    //force download the activity list
 
                                     screenRefresh();
                                   },
@@ -467,22 +475,22 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                               ColorChip(
                                 color: Theme.of(context).colorScheme.inversePrimary,
                                 label: 'Today',
-                                number: totalCountToday().toString(),
+                                number: todayCount.toString(),
                               ),
                               ColorChip(
                                 color: Theme.of(context).colorScheme.onSecondaryContainer,
                                 label: 'This Week',
-                                number: totalCountThisWeek().toString(),
+                                number: weekCount.toString(),
                               ),
                               ColorChip(
                                 color: Theme.of(context).colorScheme.onSecondaryContainer,
                                 label: 'This Month',
-                                number: totalCountThisMonth().toString(),
+                                number: monthCount.toString(),
                               ),
                               ColorChip(
                                 color: Theme.of(context).colorScheme.onSecondaryContainer,
                                 label: 'This Year',
-                                number: totalCountThisYear().toString(),
+                                number: yearCount.toString(),
                               ),
                             ],
                           ),

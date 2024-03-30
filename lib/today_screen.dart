@@ -65,15 +65,30 @@ class _TodayState extends ConsumerState<Today> {
     return todayActivities;
   }
 
-  //finding the best 1 time value for the activity in the list of today's activities.
   int getBestValue(Activity activity) {
-    int bestValue = 0;
+    int bestSummedValue = 0; // Initialize the best sum of values ever recorded for a day
+
+    // Create a map to store the summed values for each day
+    Map<DateTime, int> dailySummedValues = {};
+
+    // Iterate over the dated records
     activity.datedRecs.forEach((key, value) {
-      if (value > bestValue) {
-        bestValue = value;
+      // Calculate the date without time components
+      DateTime date = DateTime(key.year, key.month, key.day);
+
+      // Add the value to the sum of the corresponding day
+      dailySummedValues[date] = (dailySummedValues[date] ?? 0) + value;
+
+      // Update the bestSummedValue if needed
+      if (dailySummedValues[date]! > bestSummedValue) {
+        bestSummedValue = dailySummedValues[date]!;
       }
     });
-    return bestValue;
+
+    // Print the result
+    print('The best recorded value for a single day for ${activity.name} is $bestSummedValue');
+
+    return bestSummedValue;
   }
 
   //for each activity in today's activities, we will create a progress object and add it to the list of progress objects
@@ -100,7 +115,14 @@ class _TodayState extends ConsumerState<Today> {
         }
       });
 
-      todaysRecent = activity.datedRecs[nearestDate] ?? 0;
+      //todaysRecent is the sum of count today
+      DateTime now = DateTime.now();
+      activity.datedRecs.forEach((key, value) {
+        if (key.day == now.day && key.month == now.month && key.year == now.year) {
+          todaysRecent += value;
+        }
+      });
+      //
 
       print("todays recent for " + activity.name + " is " + todaysRecent.toString());
 
@@ -240,7 +262,7 @@ class _TodayState extends ConsumerState<Today> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Recent: ${progressObject.todaysRecent}"),
+                          Text("Today: ${progressObject.todaysRecent}"),
                           Text('Best: ${progressObject.bestValue}'),
                         ],
                       ),
@@ -256,7 +278,7 @@ class _TodayState extends ConsumerState<Today> {
                       const SizedBox(height: 20),
                       Center(
                           child: Text(
-                        "Probability of reaching ${progressObject.validRecordsSum} in the next hour:",
+                        "You have done ${progressObject.validRecordsSum} within these 2 Hrs",
                         style: TextStyle(fontSize: 15),
                       )),
                       const SizedBox(height: 8),
@@ -311,7 +333,7 @@ class PiechartWidget extends StatelessWidget {
             child: Text("No " + (isCountBased ? "count-based" : "time-based") + " Activities Today! 🥺",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
-                  fontSize: 20,
+                  fontSize: 15,
                 )),
           )
         : Container(
