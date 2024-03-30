@@ -7,11 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xy;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
-import 'package:workouts_v3/screens/exportExcelScreen.dart';
 
 /*Here is what the class looks like for the activity:
 class Activity extends ChangeNotifier {
@@ -547,7 +550,19 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   padding: const EdgeInsets.all(50.0),
                   child: FilledButton.tonal(
                     onPressed: () async {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => ExportAsExcelScreen()));
+                      //try to launch url else shoow snackbar
+                      try {
+                        String phoneNumber = '923151936044'; // Country code prefix is required
+                        String message = 'Hello, this is a test message!';
+                        launchWhatsApp(phone: phoneNumber, message: message);
+                      } catch (e) {
+                        final text = e;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Could not launch url$text'),
+                          ),
+                        );
+                      }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -557,7 +572,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                           color: Colors.white,
                           size: 20,
                         ),
-                        const Text("  Export the Excel"),
+                        const Text("  Export the Activity Data"),
                       ],
                     ),
                   ),
@@ -570,6 +585,18 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         ],
       ),
     );
+  }
+
+  void launchWhatsApp({
+    required String phone,
+    required String message,
+  }) async {
+    String url = 'https://wa.me/$phone?text=${Uri.encodeFull(message)}';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch WhatsApp.';
+    }
   }
 
   //method to create excel fiile

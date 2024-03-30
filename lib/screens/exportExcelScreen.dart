@@ -1,35 +1,41 @@
-import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart';
-import 'package:workouts_v3/buisiness_logic/all_classes.dart';
+// import 'dart:io';
 
-class ExportAsExcelScreen extends StatefulWidget {
-  final Activity activity;
-  const ExportAsExcelScreen({super.key, required this.activity});
+// import 'package:flutter/material.dart';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:share_plus/share_plus.dart';
+// import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+// import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 
-  @override
-  State<ExportAsExcelScreen> createState() => _ExportAsExcelScreenState();
-}
+// class ExportAsExcelScreen extends StatefulWidget {
+//   final Activity activity;
+//   const ExportAsExcelScreen({required this.activity});
 
-class _ExportAsExcelScreenState extends State<ExportAsExcelScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Export as Excel'),
-      ),
-      body: const Center(
-        child: Text('This feature is still under development'),
-      ),
-    );
-  }
-}
+//   @override
+//   State<ExportAsExcelScreen> createState() => _ExportAsExcelScreenState();
+// }
 
-Future<void> createExcel() async {
-  final workbook = Workbook();
-  final List<int> bytes = workbook.saveAsStream();
-
-  final directory = await getExternalStorageDirectory();
-
-  workbook.dispose();
-}
+// class _ExportAsExcelScreenState extends State<ExportAsExcelScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Export as Excel'),
+//       ),
+//       body: Center(
+//         child: ElevatedButton(
+//           onPressed: () async {
+//             await createExcel();
+//           },
+//           style: ButtonStyle(
+//             elevation: MaterialStateProperty.all(10),
+//             backgroundColor: MaterialStateProperty.all(Colors.blue),
+//             shape: MaterialStateProperty.all(RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(10),
+//             )),
+//           ),
+//           child: const Text('Export'),
+//         ),
+//       ),
+//     );
+//   }
+// }
