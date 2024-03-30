@@ -49,7 +49,22 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   void selectImages() async {
     //pick the image from camera and add it to the list
 
-    imageFileList.add(imagePicker.pickImage(source: ImageSource.camera) as XFile);
+// Assuming you're inside an async function
+    XFile? imageFile = await imagePicker.pickImage(source: ImageSource.camera, imageQuality: 40);
+    if (imageFile != null) {
+      imageFileList.add(imageFile);
+      setState(() {
+        images.add(
+          Image.file(
+            File(imageFile.path),
+            fit: BoxFit.cover,
+          ),
+        );
+      });
+    } else {
+      // Handle the case where no image was picked
+      print("no image selected");
+    }
 
     print("${imageFileList.length} images selected");
     //print the size of each image
