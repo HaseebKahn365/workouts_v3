@@ -2,15 +2,32 @@
 
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/firebase_uploader.dart';
+import 'package:workouts_v3/screens/exportExcelScreen.dart';
+
+/*Here is what the class looks like for the activity:
+class Activity extends ChangeNotifier {
+  late bool isCountBased;
+  bool shouldAppear = true; //used to remove the activity from the list and firestore just by setting it to false
+
+  int totalRecords = 0;
+  late String name;
+  Map<DateTime, int> datedRecs = {};
+  Map<String, List<String>> imgMapArray = {};
+  Map<String, List<String>> tagMapArray = {};
+
+  }
+
+  we need to share all the dateRecs in the form of a CSV file 
+  */
 
 class ActivityScreen extends ConsumerStatefulWidget {
   final Activity activity;
@@ -50,7 +67,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     //pick the image from camera and add it to the list
 
 // Assuming you're inside an async function
-    XFile? imageFile = await imagePicker.pickImage(source: ImageSource.camera, imageQuality: 40);
+    XFile? imageFile = await imagePicker.pickImage(source: ImageSource.camera, imageQuality: 25);
     if (imageFile != null) {
       imageFileList.add(imageFile);
       setState(() {
@@ -522,6 +539,31 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                         curve: Curves.easeInOut,
                       ),
                 ),
+
+                //Here is the button to export the entire datedRec of the activity as an excel file using the syncfusion flutter xlsio package
+
+                //A SIMPLE ICON TEXT BUTTON WITH SHARE ICON
+                Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: FilledButton.tonal(
+                    onPressed: () async {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => ExportAsExcelScreen()));
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          FluentIcons.window_28_regular,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        const Text("  Export the Excel"),
+                      ],
+                    ),
+                  ),
+                ),
+
+                //end
               ],
             ),
           ),
@@ -529,6 +571,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       ),
     );
   }
+
+  //method to create excel fiile
+
+  //method to create excel fiile
 
   int totalCountToday() {
     int count = 0;
