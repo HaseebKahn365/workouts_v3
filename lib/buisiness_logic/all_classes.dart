@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:workouts_v3/buisiness_logic/sql_services.dart';
 import 'package:workouts_v3/main.dart';
 
 class Parent extends ChangeNotifier {
   //there is only one parent object in the application that will consist of a list of Activity objects
 
   //creating an instance of the SQLService to manage all the activities here
-  final SQLService sqlService = SQLService();
+  // final SQLService sqlService = SQLService();
 
   List<Activity> activities = [];
   int totalActivities = 0;
