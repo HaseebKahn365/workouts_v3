@@ -1,10 +1,15 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:convert';
+import 'dart:html' as html;
+
+import 'package:csv/csv.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
+import 'package:workouts_v3/main.dart';
 
 class Overall extends ConsumerStatefulWidget {
   final Parent parent;
@@ -98,34 +103,38 @@ class _OverallState extends ConsumerState<Overall> {
   Widget build(BuildContext context) {
     final activitiesThisWeek = getWeeklyActivities();
     final lineChartDataList = getLineChartDataList(activitiesThisWeek);
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: ListView(
-          children: <Widget>[
-            const SizedBox(height: 16),
-            Center(child: Text('  Weekly\'s Progress \n', style: Theme.of(context).textTheme.headlineMedium)).animate().scale(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                ),
-            for (var i = 0; i < activitiesThisWeek.length; i++)
-              Padding(
-                  padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-                  child: Column(
-                    children: [
-                      Text("${activitiesThisWeek[i].name} ${(activitiesThisWeek[i].isCountBased) ? "" : "(mins)"}", style: Theme.of(context).textTheme.headlineSmall),
-                      LineChartWidget(
-                        lineDataMap: lineChartDataList[i],
-                      ),
-                    ],
-                  ).animate().scale(
+    return (isWeb)
+        ? CreateScreenForWeb(
+            parent: parent,
+          )
+        : Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: ListView(
+                children: <Widget>[
+                  const SizedBox(height: 16),
+                  Center(child: Text('  Weekly\'s Progress \n', style: Theme.of(context).textTheme.headlineMedium)).animate().scale(
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.easeInOut,
-                      )),
-          ],
-        ),
-      ),
-    );
+                      ),
+                  for (var i = 0; i < activitiesThisWeek.length; i++)
+                    Padding(
+                        padding: const EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                        child: Column(
+                          children: [
+                            Text("${activitiesThisWeek[i].name} ${(activitiesThisWeek[i].isCountBased) ? "" : "(mins)"}", style: Theme.of(context).textTheme.headlineSmall),
+                            LineChartWidget(
+                              lineDataMap: lineChartDataList[i],
+                            ),
+                          ],
+                        ).animate().scale(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            )),
+                ],
+              ),
+            ),
+          );
   }
 }
 
@@ -234,6 +243,237 @@ class LineChartWidget extends StatelessWidget {
           // find the max value in the map and + 5 to it
           maxY: lineDataMap.values.reduce((value, element) => value > element ? value : element).toDouble() + 1,
           minY: 0,
+        ),
+      ),
+    );
+  }
+}
+
+//create a simple widget for now to display all the activities in and their records in the entire history.
+
+/*
+Here is what the buisiness logic looks like
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:workouts_v3/main.dart';
+
+class Parent extends ChangeNotifier {
+  //there is only one parent object in the application that will consist of a list of Activity objects
+
+  //creating an instance of the SQLService to manage all the activities here
+  // final SQLService sqlService = SQLService();
+
+  List<Activity> activities = [];
+  int totalActivities = 0;
+  bool isUpdate = true;
+  // method to add an activity to the list
+  void addActivity(Activity activity) {
+    isUpdate = true;
+
+    notifyListeners();
+  }
+
+  Future<List<Activity>> AllDocsToMap() async {
+    List<Activity> activities = [];
+    await FirebaseFirestore.instance.collection('users').doc(phoneId).collection('activities').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        activities.add(Activity.fromFirestore(doc.data() as Map<String, dynamic>));
+      });
+    });
+
+    return activities;
+  }
+
+  Future<void> fetchActivities() async {
+    if (isUpdate == false) return;
+    activities = await AllDocsToMap();
+    List<Activity> temp = [];
+    activities.forEach((element) {
+      if (element.shouldAppear == true) {
+        temp.add(element);
+      }
+    });
+    activities = temp;
+    totalActivities = activities.length;
+    isUpdate = false;
+    print(activities[0]);
+    notifyListeners();
+  }
+
+  Future<void> forceDownload() async {
+    activities = await AllDocsToMap();
+    List<Activity> temp = [];
+    activities.forEach((element) {
+      if (element.shouldAppear == true) {
+        temp.add(element);
+      }
+    });
+    activities = temp;
+    totalActivities = activities.length;
+    print(activities);
+    print("activities downloaded forcefully");
+  }
+}
+
+class Activity extends ChangeNotifier {
+  late bool isCountBased;
+  bool shouldAppear = true; //used to remove the activity from the list and firestore just by setting it to false
+
+  int totalRecords = 0;
+  late String name;
+  Map<DateTime, int> datedRecs = {};
+  Map<String, List<String>> imgMapArray = {};
+  Map<String, List<String>> tagMapArray = {};
+
+  Activity({required this.name, required this.isCountBased});
+
+  void mockDelete() {
+    shouldAppear = false;
+    notifyListeners();
+  }
+
+  //named constructor to convert the firestore data to the Activity object
+
+  Activity.fromFirestore(Map<String, dynamic> data) {
+    // DateTime(epoch value milliseconds)
+    // We first need to convert the string date and time from the epoch milliseconds string to DateTime object
+    // Then we can convert the map to the Activity object
+    // Converting the datedRecs map
+    Map<DateTime, int> tempDatedRecs = {};
+    (data['datedRecs'] as Map<String, dynamic>).forEach((key, value) {
+      var nestedMap = value as Map<String, dynamic>;
+      nestedMap.forEach((nestedKey, nestedValue) {
+        tempDatedRecs[DateTime.fromMillisecondsSinceEpoch(int.parse(nestedKey))] = nestedValue as int;
+      });
+    });
+
+    // Converting the imgMapArray
+    Map<String, List<String>> tempImgMapArray = {};
+    (data['imgMapArray'] as Map<String, dynamic>).forEach((key, value) {
+      var nestedMap = value as Map<String, dynamic>;
+      tempImgMapArray[key] = nestedMap.values.map((e) => e.toString()).toList();
+    });
+
+// Converting the tagMapArray
+    Map<String, List<String>> tempTagMapArray = {};
+    (data['tagMapArray'] as Map<String, dynamic>).forEach((key, value) {
+      var nestedMap = value as Map<String, dynamic>;
+      tempTagMapArray[key] = nestedMap.values.map((e) => e.toString()).toList();
+    });
+
+    // Setting the values
+    name = data['name'];
+    isCountBased = data['isCountBased'];
+    shouldAppear = data['shouldAppear'];
+    totalRecords = data['totalRecords'];
+    datedRecs = tempDatedRecs;
+    imgMapArray = tempImgMapArray;
+    tagMapArray = tempTagMapArray;
+    // this.createdOn = DateTime.fromMillisecondsSinceEpoch(int.parse(data['createdOn'])); //TODO this is not uploaded to the firestore yet
+  }
+
+  //overrriding toString
+  @override
+  String toString() {
+    return "Printing activity: \nActivity: $name, \nisCountBased: $isCountBased, \nshouldAppear: $shouldAppear, \ntotalRecords: $totalRecords, \ndatedRecs: $datedRecs, \nimgMapArray: $imgMapArray, \ntagMapArray: $tagMapArray";
+  }
+}
+
+
+ */
+
+class CreateScreenForWeb extends StatelessWidget {
+  final Parent parent;
+  const CreateScreenForWeb({
+    super.key,
+    required this.parent,
+  });
+
+  //creating a beautiful dashboard displaying all the activities and their records in the entire history
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView(
+          // do not use the flutter charts. we are simply gonna use the table widget to display all the stats
+
+          children: <Widget>[
+            const SizedBox(height: 16),
+            Center(child: Text('  All Activities \n', style: Theme.of(context).textTheme.headlineMedium)).animate().scale(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                ),
+            DataTable(
+              columns: [
+                DataColumn(label: Text('Activity')),
+                DataColumn(label: Text('Total Records')),
+                DataColumn(label: Text('Total Count')),
+              ],
+              rows: [
+                for (var activity in parent.activities)
+                  DataRow(
+                    cells: [
+                      DataCell(Text(activity.name)),
+                      DataCell(Text(activity.totalRecords.toString())),
+                      DataCell(Text(activity.datedRecs.values.reduce((value, element) => value + element).toString())),
+                    ],
+                  ),
+              ],
+            ),
+
+            Center(
+              child: Text('\n\nActivity Details', style: Theme.of(context).textTheme.headlineMedium).animate().scale(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  ),
+            ),
+
+            //I have changed my mind. Lets convert the above to expandable tiles and show all the records of the activity in the table format
+
+            for (var activity in parent.activities)
+              ExpansionTile(
+                title: Text(activity.name),
+                children: [
+                  DataTable(
+                    columns: [
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Records')),
+                    ],
+                    rows: [
+                      for (var k in activity.datedRecs.keys)
+                        DataRow(
+                          cells: [
+                            DataCell(Text(k.toString())),
+                            DataCell(Text(activity.datedRecs[k].toString())),
+                          ],
+                        ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      List<List<dynamic>> rows = [];
+                      for (var k in activity.datedRecs.keys) {
+                        List<dynamic> row = [];
+                        row.add(k);
+                        row.add(activity.datedRecs[k]);
+                        rows.add(row);
+                      }
+                      String csv = const ListToCsvConverter().convert(rows);
+
+                      final bytes = utf8.encode(csv);
+                      final blob = html.Blob([bytes]);
+                      final url = html.Url.createObjectUrlFromBlob(blob);
+                      final anchor = html.AnchorElement(href: url)
+                        ..setAttribute('download', 'activity.csv')
+                        ..click();
+                    },
+                    child: Text('Export to CSV'),
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );

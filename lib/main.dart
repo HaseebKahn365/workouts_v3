@@ -24,6 +24,8 @@ Future<void> main() async {
   );
 }
 
+bool isWeb = false;
+
 String motivationalMessage = "Lets get this over with! (Default)";
 
 class Wrokouts extends ConsumerStatefulWidget {
@@ -63,6 +65,9 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
       motivationalMessage = prefs.getString('message') ?? "Lets get this over with! (Default)";
       print('Loaded the sharedPrefrences themeData');
     });
+    if (MediaQuery.of(context).size.width > 600) {
+      isWeb = true;
+    }
   }
 
   void _saveSettings() async {
@@ -74,6 +79,7 @@ class _WrokoutsState extends ConsumerState<Wrokouts> {
 
   @override
   initState() {
+    //check if im on web using media querry
     super.initState();
     _loadSettings();
     themeData = updateThemes(colorSelected, useMaterial3, useLightMode);

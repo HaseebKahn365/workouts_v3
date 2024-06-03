@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workouts_v3/buisiness_logic/all_classes.dart';
 import 'package:workouts_v3/buisiness_logic/probability_utils.dart';
+import 'package:workouts_v3/main.dart';
 
 const Widget divider = SizedBox(height: 10);
 
@@ -235,7 +236,7 @@ class _TodayState extends ConsumerState<Today> {
 
     return Expanded(
         child: ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: (isWeb) ? 210 : 10),
       children: [
         //elevated button to refresh
         Padding(
