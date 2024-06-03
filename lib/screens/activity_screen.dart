@@ -556,10 +556,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                         String message = 'Hello, this is a test message!';
                         launchWhatsApp(phone: phoneNumber, message: message);
                       } catch (e) {
-                        final text = e;
+                        //display snackbar with error message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Could not launch url$text'),
+                            content: Text('Error: $e'),
+                            duration: Duration(seconds: 3),
                           ),
                         );
                       }
